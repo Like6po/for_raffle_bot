@@ -41,7 +41,7 @@ async def main():
     # noinspection PyTypeChecker
     sqlalchemy_session_pool = sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
 
-    register_routers(dp, sqlalchemy_session_pool)
+    register_routers(dp, sqlalchemy_session_pool, bot)
 
     # start
     try:
