@@ -12,7 +12,7 @@ from sqlalchemy.orm import sessionmaker, Session, joinedload
 from sqlalchemy.sql import ClauseElement
 from sqlalchemy.sql.elements import BinaryExpression
 
-from app.database.models import DatabaseModel
+from database import DatabaseModel
 
 ASTERISK = "*"
 
