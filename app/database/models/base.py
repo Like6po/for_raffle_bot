@@ -4,7 +4,7 @@ import logging
 import re
 from typing import Optional, Type, cast, Any, Dict, Pattern, Final
 
-from sqlalchemy import inspect, Column, TIMESTAMP, func, Integer, Text, BigInteger, VARCHAR
+from sqlalchemy import inspect
 from sqlalchemy.orm import registry, has_inherited_table, declared_attr
 from sqlalchemy.orm.decl_api import DeclarativeMeta
 from sqlalchemy.util import ImmutableProperties
@@ -65,19 +65,3 @@ class DatabaseModel(metaclass=DeclarativeMeta):
 
     def as_dict(self) -> Dict[Any, Any]:
         return self._get_attributes()
-
-
-class TimedBaseModel(DatabaseModel):
-    __abstract__ = True
-    id = Column(Integer(), autoincrement=True, primary_key=True)
-    register_timestamp = Column(TIMESTAMP(timezone=True), server_default=func.now())
-    # updated_at = Column(TIMESTAMP(timezone=True),
-    #                     default=func.now(),
-    #                     onupdate=func.now(),
-    #                     server_default=func.now())
-
-
-class User(DatabaseModel):
-    id = Column(Integer(), autoincrement=True, primary_key=True)
-    tg_id = Column(BigInteger(), unique=True, nullable=False)
-    full_name = Column(VARCHAR(254), nullable=False)
