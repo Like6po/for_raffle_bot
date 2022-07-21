@@ -6,7 +6,7 @@ from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from database.models import DatabaseModel
+from database import DatabaseModel
 from handlers import register_routers
 from misc.config import load_config
 
@@ -41,7 +41,7 @@ async def main():
     # noinspection PyTypeChecker
     sqlalchemy_session_pool = sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
 
-    register_routers(dp, sqlalchemy_session_pool)
+    register_routers(dp, sqlalchemy_session_pool, bot)
 
     # start
     try:
