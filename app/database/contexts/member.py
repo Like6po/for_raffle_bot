@@ -53,7 +53,7 @@ class MemberContext(DatabaseContext):
                   tg_id: int | None = None,
                   **values) -> None:
         if user:
-            return await super().update(User.tg_id == user.id,
+            return await super().update(Member.tg_id == user.id,
                                         full_name=user.full_name,
                                         username=user.username,
                                         **values)
