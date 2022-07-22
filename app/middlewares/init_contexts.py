@@ -6,6 +6,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.contexts.user import UserContext
 from database.models.user import User
+from database.contexts.channel import ChannelContext
+from database.models.channel import Channel
 
 
 class InitMiddleware(BaseMiddleware):
@@ -23,6 +25,7 @@ class InitMiddleware(BaseMiddleware):
     def create_contexts(self, data: Dict[str, Any], session: AsyncSession):
         data["bot"] = self.bot
         data["user_db"] = UserContext(session, query_model=User)
+        data["channel_db"] = ChannelContext(session, query_model=Channel)
 
     async def __call__(self, handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
                        obj: TelegramObject,
