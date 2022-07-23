@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from aiogram.dispatcher.filters import BaseFilter
 from aiogram.types import TelegramObject, Message, CallbackQuery
+from aiogram.types.chat_member_updated import ChatMemberUpdated
 
 
 @dataclass
@@ -20,6 +21,8 @@ class ChatFilter(BaseFilter):
             return obj.chat.type == self.chat_type
         if isinstance(obj, CallbackQuery):
             return obj.message.chat.type == self.chat_type
+        if isinstance(obj, ChatMemberUpdated):
+            return obj.chat.type == self.chat_type
         return False
 
 
