@@ -8,6 +8,8 @@ from database.contexts.user import UserContext
 from database.models.user import User
 from database.contexts.channel import ChannelContext
 from database.models.channel import Channel
+from database.contexts.member import MemberContext
+from database.models.member import Member
 
 
 class InitMiddleware(BaseMiddleware):
@@ -26,6 +28,7 @@ class InitMiddleware(BaseMiddleware):
         data["bot"] = self.bot
         data["user_db"] = UserContext(session, query_model=User)
         data["channel_db"] = ChannelContext(session, query_model=Channel)
+        data["member_db"] = MemberContext(session, query_model=Member)
 
     async def __call__(self, handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
                        obj: TelegramObject,
