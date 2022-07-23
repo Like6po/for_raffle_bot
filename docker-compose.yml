@@ -19,5 +19,7 @@ services:
     restart: always
     env_file:
       - ".env"
+    volumes:
+      - ./app:/app
     depends_on:
       - postgres
