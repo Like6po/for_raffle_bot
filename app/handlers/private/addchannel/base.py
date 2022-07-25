@@ -1,5 +1,5 @@
-from aiogram.types import Message
 from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.types import Message
 
 from states.user import UserStatus
 
