@@ -9,7 +9,15 @@ class StartCallback(CallbackData, prefix="start"):
 
 def start_kb():
     kb_obj = InlineKeyboardBuilder()
-    kb_obj.row(InlineKeyboardButton(text='📝 Новости бота',
-                                    url='http://t.me/bots_TiKey'))
+    kb_obj.row(InlineKeyboardButton(text='💬 Каналы',
+                                    callback_data=StartCallback(action="channels").pack()),
+               InlineKeyboardButton(text='🎁 Создать Конкурс',
+                                    callback_data=StartCallback(action="contest").pack()))
+    kb_obj.row(InlineKeyboardButton(text='📋 Инструкция',
+                                    url='https://t.me/bots_TiKey'),
+               InlineKeyboardButton(text='📝 Новости бота',
+                                    url='https://t.me/bots_TiKey'))
+    kb_obj.row(InlineKeyboardButton(text='🖥 Исходный код',
+                                    url='https://github.com/Like6po/for_raffle_bot'))
 
     return kb_obj.as_markup()
