@@ -6,7 +6,6 @@ from keyboards.start import start_kb
 
 async def command_start(message: Message,
                         user_db: UserContext):
-    user = await user_db.get_or_create_and_get(message.from_user)
-
-    await message.answer(text=f'Привет, {user.full_name}! Ваш id = {user.id}',
+    await user_db.get_or_create_and_get(message.from_user)
+    await message.answer(text=f'Привет, {message.from_user.full_name}!',
                          reply_markup=start_kb())
