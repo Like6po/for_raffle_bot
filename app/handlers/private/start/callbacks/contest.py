@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 from misc.pages import array_to_pages
 from database.contexts.user_channel import UserChannelContext
 from keyboards.contest import channels_choice_kb
-from keyboards.channels import channels_cancel_kb
+from keyboards.base import back_kb
 
 
 async def start_contest(cbq: CallbackQuery,
@@ -12,7 +12,7 @@ async def start_contest(cbq: CallbackQuery,
 
     if not user_channels_list:
         return await cbq.message.edit_text("Вы ещё не привязали ни одного канала!",
-                                           reply_markup=channels_cancel_kb())
+                                           reply_markup=back_kb())
 
     await cbq.message.edit_text("Выберите канал:",
                                 reply_markup=channels_choice_kb(

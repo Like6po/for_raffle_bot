@@ -19,7 +19,7 @@ async def contest_channel_choice(cbq: CallbackQuery,
                                     reply_markup=contests_kb(contest_results_btn=False))
         return
 
-    channel_contest = [f'{index + 1}. (id{contest.id})' for index, contest in enumerate(contests)]
+    channel_contest = [f'{index + 1}. id{contest.id}' for index, contest in enumerate(contests)]
     await cbq.message.edit_text(
-        f"Конкурсы, проходящие сейчас в канале {hbold(channel.title)}:\n\n" + '\n'.join(channel_contest),
+        f"На данный момент в канале {hbold(channel.title)} проходят следующие конкурсы:\n\n" + '\n'.join(channel_contest),
         reply_markup=contests_kb())
