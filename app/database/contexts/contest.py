@@ -34,11 +34,11 @@ class ContestContext(DatabaseContext):
                   end_count: int | None = None,
                   **values: Any) -> Contest:
         try:
-            if user and channel and text and btn_title and winner_count:
+            if user and channel and text and winner_count and (end_at or end_count):
                 return await super().add(user_id=user.id,
                                          channel_id=channel.id,
                                          text=text,
-                                         btn_title=btn_title,
+                                         btn_title=btn_title or "Учавствовать",
                                          attachment_hash=attachment_hash,
                                          is_attachment_preview=is_attachment_preview or False,
                                          start_at=start_at,
