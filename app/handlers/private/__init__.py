@@ -7,9 +7,14 @@ from handlers.private.addchannel.callbacks.channels_back import channels_back
 from handlers.private.addchannel.callbacks.channels_cancel import channels_cancel
 from handlers.private.addchannel.wait_channel import wait_channel
 from handlers.private.start.base import command_start
-from handlers.private.start.callbacks.base import start_channels
+from handlers.private.start.callbacks.channels import start_channels
+from handlers.private.start.callbacks.contest import start_contest
+from handlers.private.contest.base import command_contest
+from handlers.private.contest.callbacks.channel_choice import contest_channel_choice
+from handlers.private.contest.callbacks.channel_switch import contest_channel_switch
 from keyboards.channels import ChannelsCallback
 from keyboards.start import StartCallback
+from keyboards.contest import ContestCallback
 from middlewares.init_contexts import InitMiddleware
 from states.user import UserStatus
 
@@ -25,11 +30,15 @@ def create_private_router(session_pool, bot: Bot) -> Router:
 
     private_router.message.register(command_start, commands=["start"])
     private_router.message.register(command_addchannel, commands=["addchannel"], state=None)
+    private_router.message.register(command_contest, commands=["contest"])
     private_router.message.register(wait_channel, state=UserStatus.wait_channel_message)
 
-    private_router.callback_query.register(start_channels, StartCallback.filter())
+    private_router.callback_query.register(start_channels, StartCallback.filter(F.action == "channels"))
     private_router.callback_query.register(channels_back, ChannelsCallback.filter(F.action == "back"))
     private_router.callback_query.register(channels_add, ChannelsCallback.filter(F.action == "add"))
     private_router.callback_query.register(channels_cancel, ChannelsCallback.filter(F.action == "cancel"))
+    private_router.callback_query.register(start_contest, StartCallback.filter(F.action == "contest"))
+    private_router.callback_query.register(contest_channel_choice, ContestCallback.filter(F.action == "channel_choice"))
+    private_router.callback_query.register(contest_channel_switch, ContestCallback.filter(F.action == "channel_switch"))
 
     return private_router
