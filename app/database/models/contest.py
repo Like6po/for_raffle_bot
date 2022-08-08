@@ -8,6 +8,7 @@ class Contest(DatabaseModel):
     id = Column(Integer(), autoincrement=True, primary_key=True)
     channel_id = Column(Integer(), nullable=False)
     user_id = Column(Integer(), nullable=False)
+    message_id = Column(BigInteger())
     text = Column(Text(), nullable=False)
     btn_title = Column(Text(), nullable=False)
     attachment_hash = Column(Text())
