@@ -12,7 +12,7 @@ async def start_channels(cbq: CallbackQuery,
         return await cbq.message.edit_text("Вы ещё не привязали ни одного канала!",
                                            reply_markup=channels_kb())
 
-    user_channels = [f"{index + 1}. {chat_link(username=channel.username, id=channel.tg_id, title=channel.title)}"
+    user_channels = [f"{index + 1}. {chat_link(username=channel.username, tg_id=channel.tg_id, title=channel.title)}"
                      for index, channel in enumerate(user_channels_list)]
 
     await cbq.message.edit_text("Привязанные каналы:\n\n" + "\n".join(user_channels),

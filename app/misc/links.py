@@ -12,10 +12,15 @@ def user_link(user=None, title: str = None, full_name=None, tg_id=None, username
                  f"t.me/{username}" if username and not is_force_by_id else f"tg://openmessage?user_id={tg_id}")
 
 
-def chat_link(chat: AiogramChat = None, username=None, id=None, title=None):
+def chat_link(chat: AiogramChat = None, username=None, tg_id=None, title=None):
     username = chat.username if chat else username
-    id = chat.id if chat else id
+    tg_id = chat.id if chat else tg_id
     title = chat.title if chat else title
 
     return hlink(title,
-                 f"t.me/{username}" if username else f"tg://openmessage?chat_id={((id * -1) - 1000000000000) if id < -1000000000000 else id}")
+                 f"t.me/{username}" if username else f"tg://openmessage?chat_id={((tg_id * -1) - 1000000000000) if tg_id < -1000000000000 else tg_id}")
+
+
+def post_link(chat_id: int = None, message_id: int = None, title: str = None):
+    return hlink(title,
+                 f"t.me/c/{((chat_id * -1) - 1000000000000) if chat_id < -1000000000000 else chat_id}/{message_id}")
