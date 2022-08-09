@@ -52,4 +52,9 @@ class ContestContext(DatabaseContext):
             logging.exception("Не смог вставить в базу...", exc_info=e)
 
     async def get_contests_by_channel(self, channel: Channel | None = None):
-        return await super().get_all(Contest.channel_id == channel.id)
+        statement = select(Contest.message_id, Channel.tg_id). \
+            join(Channel, Channel.id == Contest.channel_id). \
+            where(Channel.id == channel.id)
+        async with self._transaction:
+            result: AsyncResult = await self._session.execute(statement)
+            return result.all()

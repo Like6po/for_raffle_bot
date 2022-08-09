@@ -10,6 +10,8 @@ class ContestCallback(CallbackData, prefix="contest"):
     action: str
     page_index: int = 0
     channel_id: int = None
+    last_state: str = None
+    condition: bool = None
 
 
 def channels_choice_kb(channels_page: list, page_index: int = 0):
@@ -35,22 +37,42 @@ def channels_choice_kb(channels_page: list, page_index: int = 0):
     return kb_obj.as_markup()
 
 
-def post_button_kb():
+def post_button_kb(button_title: str):
     kb_obj = InlineKeyboardBuilder()
-    kb_obj.row(InlineKeyboardButton(text='Участвовать',
+    kb_obj.row(InlineKeyboardButton(text=button_title or 'Учавствовать',
                                     callback_data=ContestCallback(action="join").pack()))
 
     return kb_obj.as_markup()
 
 
-def contests_kb(contest_results_btn: bool = True):
+def contest_action_kb(channel_id: int, contest_results_btn: bool = True):
     kb_obj = InlineKeyboardBuilder()
     kb_obj.row(InlineKeyboardButton(text='➕ Создать Конкурс',
-                                    callback_data=ContestCallback(action="create").pack()))
+                                    callback_data=ContestCallback(action="create", channel_id=channel_id).pack()))
     if contest_results_btn:
         kb_obj.row(InlineKeyboardButton(text='📝 Подвести Итоги',
                                         callback_data=ContestCallback(action="results").pack()))
     kb_obj.row(InlineKeyboardButton(text='🗄 Выбор Каналов',
                                     callback_data=StartCallback(action="contest").pack()))
 
+    return kb_obj.as_markup()
+
+
+def contest_kb(channel_id: int, last_state: str = None, condition_buttons_title: tuple | list = None):
+    kb_obj = InlineKeyboardBuilder()
+    if condition_buttons_title:
+        keyb_btns = [InlineKeyboardButton(text=condition_buttons_title[0],
+                                          callback_data=ContestCallback(action="condition", condition=True,
+                                                                        last_state=last_state,
+                                                                        channel_id=channel_id).pack())]
+        if len(condition_buttons_title) == 2:
+            keyb_btns.append(InlineKeyboardButton(text=condition_buttons_title[1],
+                                                  callback_data=ContestCallback(action="condition", condition=False,
+                                                                                last_state=last_state,
+                                                                                channel_id=channel_id).pack()))
+        kb_obj.row(*keyb_btns)
+
+    kb_obj.row(InlineKeyboardButton(text='⏪ Назад',
+                                    callback_data=ContestCallback(action="return" if last_state else "channel_choice",
+                                                                  last_state=last_state, channel_id=channel_id).pack()))
     return kb_obj.as_markup()

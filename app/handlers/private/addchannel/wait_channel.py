@@ -19,16 +19,16 @@ async def wait_channel(message: Message,
                        user_db: UserContext,
                        channel_db: ChannelContext,
                        user_channels_db: UserChannelContext):
-    if message.text.startswith('@'):
-        channel: Channel = await channel_db.get(await bot.get_chat(message.text))
-    elif message.forward_from_chat:
+    if message.forward_from_chat:
         channel: Channel = await channel_db.get(message.forward_from_chat)
+    elif message.text.startswith('@'):
+        channel: Channel = await channel_db.get(await bot.get_chat(message.text))
     else:
         await message.answer("Ожидаю либо юзернейм канала, либо пересланное с канала сообщение! Попробуйте снова!")
         return
 
     if not channel:
-        await message.answer("Пригласите меня в канал и выдайте мне права на публикацию сообщений в канале! "
+        await message.answer("Пригласите меня в канал и выдайте мне права на публикацию сообщений! "
                              "Попробуйте снова!")
         return
 
@@ -52,7 +52,7 @@ async def wait_channel(message: Message,
 
     user_channels_list = await user_channels_db.get_all_user_channels(message.from_user)
 
-    user_channels = [f"{index + 1}. {chat_link(username=channel.username, id=channel.tg_id, title=channel.title)}"
+    user_channels = [f"{index + 1}. {chat_link(username=channel.username, tg_id=channel.tg_id, title=channel.title)}"
                      for index, channel in enumerate(user_channels_list)]
 
     await message.answer(f"Отлично! Канал {hbold(channel.title)} успешно привязан!\n\n"
