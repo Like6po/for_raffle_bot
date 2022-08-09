@@ -1,4 +1,4 @@
-def array_to_pages(array: list = []) -> dict:
+def array_to_pages(array: list) -> dict:
     pages = {
         0: []
     }

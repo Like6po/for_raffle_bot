@@ -14,7 +14,7 @@ class ContestCallback(CallbackData, prefix="contest"):
     condition: bool = None
 
 
-def channels_choice_kb(channels_page: list, page_index: int = 0):
+def channels_choice_kb(channels_page: dict, page_index: int = 0):
     kb_obj = InlineKeyboardBuilder()
     for channel in channels_page[page_index]:
         kb_obj.row(InlineKeyboardButton(text=channel.title,
