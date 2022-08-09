@@ -4,7 +4,7 @@ from datetime import datetime
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, DataError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncResult
 from sqlalchemy.orm import sessionmaker
 
 from database.contexts.base import DatabaseContext, SQLAlchemyModel
@@ -28,7 +28,6 @@ class ContestContext(DatabaseContext):
                   btn_title: str | None = None,
                   winner_count: int | None = None,
                   attachment_hash: str | None = None,
-                  is_attachment_preview: bool | None = None,
                   start_at: datetime | None = None,
                   end_at: datetime | None = None,
                   end_count: int | None = None,
@@ -40,7 +39,6 @@ class ContestContext(DatabaseContext):
                                          text=text,
                                          btn_title=btn_title or "Учавствовать",
                                          attachment_hash=attachment_hash,
-                                         is_attachment_preview=is_attachment_preview or False,
                                          start_at=start_at,
                                          end_at=end_at,
                                          end_count=end_count,
