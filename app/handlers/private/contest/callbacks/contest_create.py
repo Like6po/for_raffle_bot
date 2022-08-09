@@ -1,12 +1,13 @@
-from aiogram.types import CallbackQuery
 from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.types import CallbackQuery
 
-from states.contest import ContestStatus
 from keyboards.contest import contest_kb, ContestCallback
+from states.contest import ContestStatus
 
 
-async def contest_create(cbq: CallbackQuery, state: FSMContext):
-    callback_data = ContestCallback.unpack(cbq.data)
+async def contest_create(cbq: CallbackQuery,
+                         callback_data: ContestCallback,
+                         state: FSMContext):
     await state.clear()
     await state.update_data({
         'channel_id': callback_data.channel_id
