@@ -9,9 +9,10 @@ from misc.links import post_link
 
 
 async def contest_channel_choice(cbq: CallbackQuery,
+                                 callback_data: ContestCallback,
                                  channel_db: ChannelContext,
                                  contest_db: ContestContext):
-    channel = await channel_db.get(channel_id=ContestCallback.unpack(cbq.data).channel_id)
+    channel = await channel_db.get(channel_id=callback_data.channel_id)
     contests = await contest_db.get_contests_by_channel(channel)
 
     if not contests:

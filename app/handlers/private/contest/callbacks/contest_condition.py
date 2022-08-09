@@ -1,15 +1,15 @@
+from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.utils.markdown import hbold
-from aiogram.dispatcher.fsm.context import FSMContext
 
-from states.contest import ContestStatus
 from keyboards.contest import contest_kb, ContestCallback
+from states.contest import ContestStatus
 
 
-async def contest_condition(cbq: CallbackQuery, state: FSMContext):
-    callback_data = ContestCallback.unpack(cbq.data)
+async def contest_condition(cbq: CallbackQuery,
+                            callback_data: ContestCallback,
+                            state: FSMContext):
     state_data = await state.get_data()
-
     if callback_data.last_state == 'text':
         if callback_data.condition:
             await state.set_state(ContestStatus.btn_title)
