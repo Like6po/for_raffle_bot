@@ -37,7 +37,7 @@ class UserChannelContext(DatabaseContext):
             return cast(bool, result.scalar())
 
     async def get_all_user_channels(self, user: AiogramUser | None = None):
-        statement = select(UserChannel.channel_id, Channel.title, Channel.tg_id, Channel.username). \
+        statement = select(UserChannel.channel_id, Channel.title, Channel.tg_id, Channel.username, Channel.id). \
             join(Channel, Channel.id == UserChannel.channel_id). \
             join(User, User.id == UserChannel.user_id). \
             where(User.tg_id == user.id)

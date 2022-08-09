@@ -11,7 +11,7 @@ def start_kb():
     kb_obj = InlineKeyboardBuilder()
     kb_obj.row(InlineKeyboardButton(text='💬 Каналы',
                                     callback_data=StartCallback(action="channels").pack()),
-               InlineKeyboardButton(text='🎁 Создать Конкурс',
+               InlineKeyboardButton(text='🎁 Конкурсы',
                                     callback_data=StartCallback(action="contest").pack()))
     kb_obj.row(InlineKeyboardButton(text='📋 Инструкция',
                                     url='https://t.me/bots_TiKey'),
