@@ -10,6 +10,10 @@ async def contest_condition(cbq: CallbackQuery,
                             callback_data: ContestCallback,
                             state: FSMContext):
     state_data = await state.get_data()
+
+    if not state_data.get('channel_id', None):
+        return await cbq.message.reply('Ой-ой! channel_id был утерян!\nplaceholder: /start ')
+
     if callback_data.last_state == 'text':
         if callback_data.condition:
             await state.set_state(ContestStatus.btn_title)
@@ -76,5 +80,7 @@ async def contest_condition(cbq: CallbackQuery,
             await cbq.message.edit_text(
                 f'Отправь мне дату окончания конкурса!\nФормат: {hbold("часы:минуты день.месяц.год")}\nПример: {hbold("18:03 08.09.2022")}',
                 reply_markup=contest_kb(callback_data.channel_id, last_state='end_at'))
+    elif callback_data.last_state in ['end_count', 'end_at']:
+        pass  # TODO: отправка и еще чето там
 
     await state.update_data(state_data)

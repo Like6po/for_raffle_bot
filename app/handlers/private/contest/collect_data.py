@@ -13,6 +13,9 @@ async def collect_data(message: Message,
     state_data = await state.get_data()
     last_state = (await state.get_state()).split(':')[-1]
 
+    if not state_data.get('channel_id', None):
+        return await message.reply('Ой-ой! channel_id был утерян!\nplaceholder: /start ')
+
     if content := get_content(message, last_state):
         if last_state in ['end_count', 'end_at']:
             state_data.update({
