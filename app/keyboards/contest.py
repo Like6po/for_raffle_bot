@@ -14,6 +14,10 @@ class ContestCallback(CallbackData, prefix="contest"):
     condition: bool = None
 
 
+class JoinButtonCallback(CallbackData, prefix="join_button"):
+    contest_db_id: int
+
+
 def channels_choice_kb(channels_page: dict, page_index: int = 0):
     kb_obj = InlineKeyboardBuilder()
     for channel in channels_page[page_index]:
@@ -37,10 +41,10 @@ def channels_choice_kb(channels_page: dict, page_index: int = 0):
     return kb_obj.as_markup()
 
 
-def post_button_kb(button_title: str):
+def post_button_kb(button_title: str, contest_db_id: int):
     kb_obj = InlineKeyboardBuilder()
     kb_obj.row(InlineKeyboardButton(text=button_title or 'Учавствовать',
-                                    callback_data=ContestCallback(action="join").pack()))
+                                    callback_data=JoinButtonCallback(contest_db_id=contest_db_id).pack()))
 
     return kb_obj.as_markup()
 

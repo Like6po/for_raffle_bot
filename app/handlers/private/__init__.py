@@ -6,22 +6,24 @@ from handlers.private.addchannel.callbacks.channels_add import channels_add
 from handlers.private.addchannel.callbacks.channels_back import channels_back
 from handlers.private.addchannel.callbacks.channels_cancel import channels_cancel
 from handlers.private.addchannel.wait_channel import wait_channel
-from handlers.private.start.base import command_start
-from handlers.private.start.callbacks.channels import start_channels
-from handlers.private.start.callbacks.contest import start_contest
 from handlers.private.contest.base import command_contest
 from handlers.private.contest.callbacks.channel_choice import contest_channel_choice
 from handlers.private.contest.callbacks.channel_switch import contest_channel_switch
+from handlers.private.contest.callbacks.contest_condition import contest_condition
 from handlers.private.contest.callbacks.contest_create import contest_create
 from handlers.private.contest.callbacks.contest_return import contest_return
-from handlers.private.contest.callbacks.contest_condition import contest_condition
+from handlers.private.contest.callbacks.post_preview import post_preview_cbq
 from handlers.private.contest.collect_data import collect_data
+from handlers.private.start.base import command_start
+from handlers.private.start.callbacks.channels import start_channels
+from handlers.private.start.callbacks.contest import start_contest
 from keyboards.channels import ChannelsCallback
-from keyboards.start import StartCallback
 from keyboards.contest import ContestCallback
+from keyboards.contest import JoinButtonCallback
+from keyboards.start import StartCallback
 from middlewares.init_contexts import InitMiddleware
-from states.user import UserStatus
 from states.contest import ContestStatus
+from states.user import UserStatus
 
 
 def create_private_router(session_pool, bot: Bot) -> Router:
@@ -49,5 +51,6 @@ def create_private_router(session_pool, bot: Bot) -> Router:
     private_router.callback_query.register(contest_create, ContestCallback.filter(F.action == "create"))
     private_router.callback_query.register(contest_return, ContestCallback.filter(F.action == "return"))
     private_router.callback_query.register(contest_condition, ContestCallback.filter(F.action == "condition"))
+    private_router.callback_query.register(post_preview_cbq, JoinButtonCallback.filter())
 
     return private_router

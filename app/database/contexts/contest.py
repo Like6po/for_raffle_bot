@@ -1,6 +1,6 @@
 import logging
-from typing import Any, Union, Type
 from datetime import datetime
+from typing import Any, Union, Type
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, DataError
@@ -8,8 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession, AsyncResult
 from sqlalchemy.orm import sessionmaker
 
 from database.contexts.base import DatabaseContext, SQLAlchemyModel
-from database.models.contest import Contest
 from database.models.channel import Channel
+from database.models.contest import Contest
 from database.models.user import User
 
 
@@ -56,3 +56,6 @@ class ContestContext(DatabaseContext):
         async with self._transaction:
             result: AsyncResult = await self._session.execute(statement)
             return result.all()
+
+    async def set_message_id(self, contest_db_id: int, message_id: int):
+        await super().update(Contest.id == contest_db_id, message_id=message_id)

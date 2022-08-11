@@ -65,7 +65,7 @@ async def collect_data(message: Message,
                                     condition_buttons_title=('👤 Учаcтники', '📆 Дата')))
 
     elif last_state in ['end_count', 'end_at']:
-        await send_post(bot, message.from_user.id, state_data, post_button_kb(state_data['btn_title']))
+        await send_post(bot, message.from_user.id, state_data, post_button_kb(state_data['btn_title'], 0))  # 0 костыль
         await message.answer(f"{hbold('👥 Кол-во победителей:')} {state_data['winner_count']}"
                              f"\n{hbold('▶ Публикация:')} {state_data['start_at'].strftime('в %H:%M %d.%m.%Y') if state_data['start_at'] else 'Сейчас'}"
                              f"\n{hbold('⏸ Окончание:')} {state_data['end_at'].strftime('в %H:%M %d.%m.%Y') if state_data['end_at'] else 'после %s участников' % (state_data['end_count'])}"

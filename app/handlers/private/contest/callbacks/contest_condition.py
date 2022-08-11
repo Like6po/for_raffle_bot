@@ -1,14 +1,20 @@
+from aiogram import Bot
 from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.utils.markdown import hbold
 
-from keyboards.contest import contest_kb, ContestCallback
+from database import ChannelContext, ContestContext
+from keyboards.contest import contest_kb, post_button_kb, ContestCallback
+from misc.contest import send_post
 from states.contest import ContestStatus
 
 
 async def contest_condition(cbq: CallbackQuery,
+                            bot: Bot,
                             callback_data: ContestCallback,
-                            state: FSMContext):
+                            state: FSMContext,
+                            channel_db: ChannelContext,
+                            contest_db: ContestContext):
     state_data = await state.get_data()
 
     if not state_data.get('channel_id', None):
@@ -67,7 +73,8 @@ async def contest_condition(cbq: CallbackQuery,
         else:
             await state.set_state(ContestStatus.start_at)
             await cbq.message.edit_text(
-                f'Отправь мне дату публикации поста!\nФормат: {hbold("часы:минуты день.месяц.год")}\nПример: {hbold("18:03 08.09.2022")}',
+                f'Отправь мне дату публикации поста!\nФормат: {hbold("часы:минуты день.месяц.год")}\n'
+                f'Пример: {hbold("18:03 08.09.2022")}',
                 reply_markup=contest_kb(callback_data.channel_id, last_state='start_at'))
 
     elif callback_data.last_state == 'start_at':
@@ -78,9 +85,25 @@ async def contest_condition(cbq: CallbackQuery,
         else:
             await state.set_state(ContestStatus.end_at)
             await cbq.message.edit_text(
-                f'Отправь мне дату окончания конкурса!\nФормат: {hbold("часы:минуты день.месяц.год")}\nПример: {hbold("18:03 08.09.2022")}',
+                f'Отправь мне дату окончания конкурса!\nФормат: {hbold("часы:минуты день.месяц.год")}\n'
+                f'Пример: {hbold("18:03 08.09.2022")}',
                 reply_markup=contest_kb(callback_data.channel_id, last_state='end_at'))
+
     elif callback_data.last_state in ['end_count', 'end_at']:
-        pass  # TODO: отправка и еще чето там
+        channel_data = await channel_db.get(channel_id=state_data['channel_id'])
+        contest_data = await contest_db.new(user=cbq.from_user,
+                                            channel=channel_data,
+                                            text=state_data['text'],
+                                            btn_title=state_data['btn_title'],
+                                            winner_count=state_data['winner_count'],
+                                            attachment_hash=state_data['attachment_hash'],
+                                            start_at=state_data['start_at'],
+                                            end_at=state_data['end_at'],
+                                            end_count=state_data['end_count'])
+
+        msg = await send_post(bot, channel_data.tg_id, state_data,
+                              post_button_kb(state_data['btn_title'], contest_data.id))
+
+        await contest_db.set_message_id(contest_data.id, msg.message_id)
 
     await state.update_data(state_data)

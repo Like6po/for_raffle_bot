@@ -20,7 +20,7 @@ class ChannelContext(DatabaseContext):
         super().__init__(session_or_pool, query_model=query_model)
 
     async def get(self, chat: AiogramChat | None = None,
-                  tg_id: int | None = None, channel_id: int | None = None):
+                  tg_id: int | None = None, channel_id: int | None = None) -> Channel | None:
         if chat:
             return await super().get_one(Channel.tg_id == chat.id)
         elif tg_id:
