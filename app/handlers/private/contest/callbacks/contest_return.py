@@ -24,7 +24,7 @@ async def contest_return(cbq: CallbackQuery,
                                     reply_markup=contest_kb(callback_data.channel_id,
                                                             last_state='btn_title',
                                                             condition_buttons_title=(
-                                                            '✅ С вложением', '❌ Без вложения')))
+                                                                '✅ С вложением', '❌ Без вложения')))
     elif callback_data.last_state == 'is_attachment_preview':
         await cbq.message.edit_text('🌐 Предпросмотр ссылок',
                                     reply_markup=contest_kb(callback_data.channel_id,
@@ -41,7 +41,7 @@ async def contest_return(cbq: CallbackQuery,
         await cbq.message.edit_text('📅 Когда опубликуем пост?',
                                     reply_markup=contest_kb(callback_data.channel_id, last_state='winner_count',
                                                             condition_buttons_title=(
-                                                            '🔜 Сразу', '📆 В определённую дату')))
+                                                                '🔜 Сразу', '📆 В определённую дату')))
 
     elif callback_data.last_state in ['end_at', 'end_count']:
         await state.set_state()

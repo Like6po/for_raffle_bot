@@ -1,9 +1,8 @@
 from aiogram import Bot
-from aiogram.types import Message
 from aiogram.dispatcher.fsm.context import FSMContext
+from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
-from states.contest import ContestStatus
 from keyboards.contest import contest_kb, post_button_kb
 from misc.contest import get_content, send_post
 
