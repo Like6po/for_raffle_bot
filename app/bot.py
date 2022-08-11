@@ -35,7 +35,7 @@ async def main():
         echo=False
     )
     async with engine.begin() as conn:
-        #await conn.run_sync(DatabaseModel.metadata.drop_all)
+        # await conn.run_sync(DatabaseModel.metadata.drop_all)
         await conn.run_sync(DatabaseModel.metadata.create_all)
 
     # noinspection PyTypeChecker
