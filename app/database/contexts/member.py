@@ -18,16 +18,15 @@ class MemberContext(DatabaseContext):
             query_model: Type[SQLAlchemyModel]):
         super().__init__(session_or_pool, query_model=query_model)
 
-    # async def get(self, user: AiogramUser | None = None,
-    #               tg_id: int | None = None):
-    #     if user:
-    #         return await super().get_one(Member.tg_id == user.id)
-    #     elif tg_id:
-    #         return await super().get_one(Member.tg_id == tg_id)
-    #     raise DataError
+    async def get(self, user: AiogramUser | None = None,
+                  tg_id: int | None = None):
+        if user:
+            return await super().get_one(Member.tg_id == user.id)
+        elif tg_id:
+            return await super().get_one(Member.tg_id == tg_id)
+        raise DataError
 
-    async def new(self, contest_db_id: int,
-                  user: AiogramUser | None = None,
+    async def new(self, user: AiogramUser | None = None,
                   tg_id: int | None = None,
                   full_name: str | None = None,
                   username: str | None = None,
@@ -37,67 +36,31 @@ class MemberContext(DatabaseContext):
                 return await super().add(tg_id=user.id,
                                          full_name=user.full_name,
                                          username=user.username,
-                                         contest_db_id=contest_db_id,
                                          **values)
             elif tg_id and full_name and username:
                 return await super().add(tg_id=tg_id,
                                          full_name=full_name,
                                          username=username,
-                                         contest_db_id=contest_db_id,
                                          **values)
             raise DataError
 
         except IntegrityError as e:
             logging.exception("Не смог вставить в базу...", exc_info=e)
 
-    # async def set(self,
-    #               user: AiogramUser | None = None,
-    #               tg_id: int | None = None,
-    #               **values) -> None:
-    #     if user:
-    #         return await super().update(Member.tg_id == user.id,
-    #                                     full_name=user.full_name,
-    #                                     username=user.username,
-    #                                     **values)
-    #     if tg_id:
-    #         return await super().update(Member.tg_id == tg_id, **values)
-    #
-    #     raise DataError
-
-    # async def get_or_create_and_get(self, target_user: AiogramUser | None = None):
-    #     if data := await self.get(user=target_user):
-    #         return data
-    #     return await self.new(user=target_user)
-
-    async def exists(self, contest_db_id: int,
-                     user: AiogramUser | None = None,
-                     tg_id: int | None = None,
-                     full_name: str | None = None,
-                     username: str | None = None, ) -> bool:
+    async def set(self, user: AiogramUser | None = None,
+                  tg_id: int | None = None,
+                  **values) -> None:
         if user:
-            return await super().exists(Member.tg_id == user.id,
-                                        Member.full_name == user.full_name,
-                                        Member.username == user.username,
-                                        Member.contest_db_id == contest_db_id)
-        elif tg_id and full_name and username:
-            return await super().exists(Member.tg_id == tg_id,
-                                        Member.full_name == full_name,
-                                        Member.username == username,
-                                        Member.contest_db_id == contest_db_id)
-        return False
+            return await super().update(Member.tg_id == user.id,
+                                        full_name=user.full_name,
+                                        username=user.username,
+                                        **values)
+        if tg_id:
+            return await super().update(Member.tg_id == tg_id, **values)
 
-    async def delete(self, contest_db_id: int,
-                     user: AiogramUser | None = None,
-                     tg_id: int | None = None,
-                     full_name: str | None = None,
-                     username: str | None = None, ):
-        if user:
-            return await super().delete(Member.tg_id == user.id,
-                                        Member.full_name == user.full_name,
-                                        Member.username == user.username,
-                                        Member.contest_db_id == contest_db_id)
-        elif tg_id and full_name and username:
-            return await super().delete(Member.tg_id == tg_id,
-                                        Member.full_name == full_name,
-                                        Member.username == username,
-                                        Member.contest_db_id == contest_db_id)
+        raise DataError
+
+    async def get_or_create_and_get(self, target_user: AiogramUser | None = None):
+        if data := await self.get(user=target_user):
+            return data
+        return await self.new(user=target_user)

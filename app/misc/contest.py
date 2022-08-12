@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from aiogram import Bot
-from aiogram.types import Message
+from aiogram.types import Message, ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember, ChatMember
 
 
 def get_content(message: Message, last_state: str):
@@ -47,3 +47,7 @@ async def send_post(bot: Bot, chat_id: int, state_data: dict, reply_markup=None)
         return await bot.send_document(chat_id=chat_id, document=state_data['attachment_hash'].split(':')[0],
                                        caption=state_data['text'],
                                        parse_mode='HTML', reply_markup=reply_markup)
+
+
+def is_channel_member(chat_member: ChatMember):
+    return isinstance(chat_member, (ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember))

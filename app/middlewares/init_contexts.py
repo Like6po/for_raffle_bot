@@ -14,6 +14,7 @@ from database.contexts.member import MemberContext
 from database.models.member import Member
 from database.contexts.contest import ContestContext
 from database.models.contest import Contest
+from database import ContestMember, ContestMemberContext
 
 
 class InitMiddleware(BaseMiddleware):
@@ -35,6 +36,7 @@ class InitMiddleware(BaseMiddleware):
         data["member_db"] = MemberContext(session, query_model=Member)
         data["user_channels_db"] = UserChannelContext(session, query_model=UserChannel)
         data["contest_db"] = ContestContext(session, query_model=Contest)
+        data["contest_members_db"] = ContestMemberContext(session, query_model=ContestMember)
 
     async def __call__(self, handler: Callable[[TelegramObject, Dict[str, Any]], Awaitable[Any]],
                        obj: TelegramObject,

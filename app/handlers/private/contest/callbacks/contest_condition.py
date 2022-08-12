@@ -93,6 +93,7 @@ async def contest_condition(cbq: CallbackQuery,
         channel_data = await channel_db.get(channel_id=state_data['channel_id'])
         contest_data = await contest_db.new(user=cbq.from_user,
                                             channel=channel_data,
+                                            channel_tg_id=channel_data.tg_id,
                                             text=state_data['text'],
                                             btn_title=state_data['btn_title'],
                                             winner_count=state_data['winner_count'],
@@ -105,5 +106,7 @@ async def contest_condition(cbq: CallbackQuery,
                               post_button_kb(state_data['btn_title'], contest_data.id))
 
         await contest_db.set_message_id(contest_data.id, msg.message_id)
+
+        return await cbq.message.edit_text('todo: finish text + keyboard')
 
     await state.update_data(state_data)

@@ -9,6 +9,7 @@ class Contest(DatabaseModel):
     id = Column(Integer(), autoincrement=True, primary_key=True)
     created_at = Column(DateTime(), nullable=False, default=datetime.now)
     channel_id = Column(BigInteger(), nullable=False)
+    channel_tg_id = Column(BigInteger(), nullable=False)
     user_id = Column(BigInteger(), nullable=False)
     message_id = Column(BigInteger(), nullable=True)
     text = Column(VARCHAR(4096), nullable=False)

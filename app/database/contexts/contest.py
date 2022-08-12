@@ -31,11 +31,13 @@ class ContestContext(DatabaseContext):
                   start_at: datetime | None = None,
                   end_at: datetime | None = None,
                   end_count: int | None = None,
+                  channel_tg_id: int | None = None,
                   **values: Any) -> Contest:
         try:
             if user and channel and text and winner_count and (end_at or end_count):
                 return await super().add(user_id=user.id,
                                          channel_id=channel.id,
+                                         channel_tg_id=channel_tg_id,
                                          text=text,
                                          btn_title=btn_title or "Учавствовать",
                                          attachment_hash=attachment_hash,
@@ -56,6 +58,9 @@ class ContestContext(DatabaseContext):
         async with self._transaction:
             result: AsyncResult = await self._session.execute(statement)
             return result.all()
+
+    async def get_by_db_id(self, contest_db_id: int) -> Contest:
+        return await super().get_one(Contest.id == contest_db_id)
 
     async def set_message_id(self, contest_db_id: int, message_id: int):
         await super().update(Contest.id == contest_db_id, message_id=message_id)
