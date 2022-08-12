@@ -6,7 +6,7 @@ from aiogram.dispatcher.fsm.storage.memory import MemoryStorage
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 
-from database import DatabaseModel
+from database.models import DatabaseModel
 from handlers import register_routers
 from misc.config import load_config
 

@@ -4,17 +4,9 @@ from aiogram import BaseMiddleware, Bot
 from aiogram.types import TelegramObject
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database.contexts.user import UserContext
-from database.models.user import User
-from database.contexts.channel import ChannelContext
-from database.models.channel import Channel
-from database.contexts.user_channel import UserChannelContext
-from database.models.user_channel import UserChannel
-from database.contexts.member import MemberContext
-from database.models.member import Member
-from database.contexts.contest import ContestContext
-from database.models.contest import Contest
-from database import ContestMember, ContestMemberContext
+from database.contexts import ContestContext, ContestMemberContext, MemberContext, UserChannelContext, \
+    ChannelContext, UserContext
+from database.models import ContestMember, Contest, Member, UserChannel, Channel, User
 
 
 class InitMiddleware(BaseMiddleware):

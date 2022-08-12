@@ -3,7 +3,7 @@ from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.utils.markdown import hbold
 
-from database import ChannelContext, ContestContext
+from database.contexts import ChannelContext, ContestContext
 from keyboards.contest import contest_kb, post_button_kb, ContestCallback
 from misc.contest import send_post
 from states.contest import ContestStatus

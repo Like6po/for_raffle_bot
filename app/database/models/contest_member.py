@@ -1,6 +1,6 @@
 from sqlalchemy import Column, INTEGER
 
-from database import DatabaseModel
+from database.models import DatabaseModel
 
 
 class ContestMember(DatabaseModel):

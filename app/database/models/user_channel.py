@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer
 
-from database import DatabaseModel
+from database.models import DatabaseModel
 
 
 class UserChannel(DatabaseModel):

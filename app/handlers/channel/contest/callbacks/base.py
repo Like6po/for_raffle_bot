@@ -1,7 +1,7 @@
-from aiogram.types import CallbackQuery
 from aiogram import Bot
+from aiogram.types import CallbackQuery
 
-from database import MemberContext, ContestContext, ContestMemberContext
+from database.contexts import MemberContext, ContestContext, ContestMemberContext
 from keyboards.contest import JoinButtonCallback
 from misc.contest import is_channel_member
 

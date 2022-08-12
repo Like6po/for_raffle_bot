@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from database.contexts.base import DatabaseContext, SQLAlchemyModel
-from database import ContestMember
+from database.models import ContestMember
 
 
 class ContestMemberContext(DatabaseContext):

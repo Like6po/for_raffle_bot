@@ -2,7 +2,7 @@ from datetime import datetime
 
 from sqlalchemy import Column, Integer, BigInteger, VARCHAR, DateTime, SmallInteger
 
-from database import DatabaseModel
+from database.models import DatabaseModel
 
 
 class Contest(DatabaseModel):
