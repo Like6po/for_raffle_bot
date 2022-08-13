@@ -1,7 +1,13 @@
 from datetime import datetime
+from random import choice
+from typing import List
 
 from aiogram import Bot
 from aiogram.types import Message, ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember, ChatMember
+
+from database.contexts import ContestContext, ContestMemberContext, MemberContext
+from database.models import Member, ContestMember
+from misc.links import post_link, user_link
 
 
 def get_content(message: Message, last_state: str):
@@ -51,3 +57,44 @@ async def send_post(bot: Bot, chat_id: int, state_data: dict, reply_markup=None)
 
 def is_channel_member(chat_member: ChatMember):
     return isinstance(chat_member, (ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember))
+
+
+async def choose_the_winners(bot: Bot,
+                             contest_db: ContestContext,
+                             contest_members_db: ContestMemberContext,
+                             member_db: MemberContext,
+                             contest_db_id: int):
+    contest_data = await contest_db.get_by_db_id(contest_db_id)
+    contest_members_list = await contest_members_db.get_all(contest_db_id)
+
+    # if len(contest_members_list) <= 0:
+    #     pass TODO: если 0 участников
+
+    winners_list: List[Member | ContestMember] = list()
+
+    # щас winners_list это список ContestMember
+    for _ in range(0, contest_data.winner_count):
+        winner = choice(contest_members_list)
+        winners_list.append(winner)
+        contest_members_list.remove(winner)
+
+    # а тут превращается в список Member
+    for index, winner in enumerate(winners_list):
+        winners_list[index] = await member_db.get(db_id=winner.member_db_id)
+
+    await contest_members_db.finish_contest(contest_db_id)
+
+    string = f'Ура, победители!\n\nСписок: ' + \
+             ', '.join(f'{i + 1}) {user_link(title=user.full_name, tg_id=user.tg_id)}' for i, user in enumerate(winners_list))
+
+    msg = await bot.send_message(contest_data.channel_tg_id, string, reply_to_message_id=contest_data.message_id)
+    link_to_post = post_link(contest_data.channel_tg_id, msg.message_id)
+
+    if contest_data.attachment_hash:
+        await bot.edit_message_caption(contest_data.channel_tg_id,
+                                       contest_data.message_id,
+                                       caption=contest_data.text + f'\n\nПобедители: {link_to_post}')
+    else:
+        await bot.edit_message_text(contest_data.text + f'\n\nПобедители: {link_to_post}',
+                                    contest_data.channel_tg_id,
+                                    contest_data.message_id)

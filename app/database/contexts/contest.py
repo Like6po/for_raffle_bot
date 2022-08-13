@@ -1,10 +1,9 @@
 import logging
 from datetime import datetime
-from typing import Any, Union, Type
+from typing import Any, Union, Type, List
 
-from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, DataError
-from sqlalchemy.ext.asyncio import AsyncSession, AsyncResult
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import sessionmaker
 
 from database.contexts.base import DatabaseContext, SQLAlchemyModel
@@ -14,7 +13,6 @@ from database.models.user import User
 
 
 class ContestContext(DatabaseContext):
-
     def __init__(
             self,
             session_or_pool: Union[sessionmaker, AsyncSession],
@@ -51,16 +49,11 @@ class ContestContext(DatabaseContext):
         except IntegrityError as e:
             logging.exception("Не смог вставить в базу...", exc_info=e)
 
-    async def get_contests_by_channel(self, channel: Channel | None = None):
-        statement = select(Contest.message_id, Channel.tg_id). \
-            join(Channel, Channel.id == Contest.channel_id). \
-            where(Channel.id == channel.id)
-        async with self._transaction:
-            result: AsyncResult = await self._session.execute(statement)
-            return result.all()
-
     async def get_by_db_id(self, contest_db_id: int) -> Contest:
         return await super().get_one(Contest.id == contest_db_id)
 
     async def set_message_id(self, contest_db_id: int, message_id: int):
         await super().update(Contest.id == contest_db_id, message_id=message_id)
+
+    async def get_all(self, channel_db_id: int) -> List[Contest]:
+        return await super().get_all(Contest.channel_id == channel_db_id)

@@ -49,13 +49,12 @@ def post_button_kb(button_title: str, contest_db_id: int):
     return kb_obj.as_markup()
 
 
-def contest_action_kb(channel_id: int, contest_results_btn: bool = True):
+def contest_action_kb(channel_id: int):
     kb_obj = InlineKeyboardBuilder()
     kb_obj.row(InlineKeyboardButton(text='➕ Создать Конкурс',
                                     callback_data=ContestCallback(action="create", channel_id=channel_id).pack()))
-    if contest_results_btn:
-        kb_obj.row(InlineKeyboardButton(text='📝 Подвести Итоги',
-                                        callback_data=ContestCallback(action="results").pack()))
+    kb_obj.row(InlineKeyboardButton(text='📝 Подвести Итоги',
+                                    callback_data=ContestCallback(action="results", channel_id=channel_id).pack()))
     kb_obj.row(InlineKeyboardButton(text='🗄 Выбор Каналов',
                                     callback_data=StartCallback(action="contest").pack()))
 

@@ -1,11 +1,14 @@
+from aiogram import Bot
 from aiogram.dispatcher.filters import CommandObject
 from aiogram.types import Message
 
 from database.contexts import ContestContext, ContestMemberContext, MemberContext
+from misc.contest import choose_the_winners
 
 
 async def command_start_deeplink(message: Message,
                                  command: CommandObject,
+                                 bot: Bot,
                                  contest_db: ContestContext,
                                  contest_members_db: ContestMemberContext,
                                  member_db: MemberContext):
@@ -25,7 +28,7 @@ async def command_start_deeplink(message: Message,
 
         if contest_data.end_count:
             if contest_data.end_count <= await contest_members_db.count(contest_db_id):
-                pass  # TODO: завершить конкурс
+                await choose_the_winners(bot, contest_db, contest_members_db, member_db, contest_db_id)
 
     # elif deeplink_name == 'еще какие-нибудь диплинки':
     else:

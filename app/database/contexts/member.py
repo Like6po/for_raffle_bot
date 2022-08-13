@@ -19,11 +19,14 @@ class MemberContext(DatabaseContext):
         super().__init__(session_or_pool, query_model=query_model)
 
     async def get(self, user: AiogramUser | None = None,
-                  tg_id: int | None = None):
+                  tg_id: int | None = None,
+                  db_id: int | None = None):
         if user:
             return await super().get_one(Member.tg_id == user.id)
         elif tg_id:
             return await super().get_one(Member.tg_id == tg_id)
+        elif db_id:
+            return await super().get_one(Member.id == db_id)
         raise DataError
 
     async def new(self, user: AiogramUser | None = None,
