@@ -1,4 +1,5 @@
 from aiogram import Router, Bot, F
+from aiogram.dispatcher.filters.command import CommandStart
 
 from filters.chat_type import PrivateChatFilter
 from handlers.private.addchannel.base import command_addchannel
@@ -17,6 +18,7 @@ from handlers.private.contest.collect_data import collect_data
 from handlers.private.start.base import command_start
 from handlers.private.start.callbacks.channels import start_channels
 from handlers.private.start.callbacks.contest import start_contest
+from handlers.private.start.deeplink import command_start_deeplink
 from keyboards.channels import ChannelsCallback
 from keyboards.contest import ContestCallback
 from keyboards.contest import JoinButtonCallback
@@ -35,7 +37,8 @@ def create_private_router(session_pool, bot: Bot) -> Router:
     private_router.message.middleware(InitMiddleware(session_pool, bot))
     private_router.callback_query.middleware(InitMiddleware(session_pool, bot))
 
-    private_router.message.register(command_start, commands=["start"])
+    private_router.message.register(command_start_deeplink, CommandStart(deep_link=True, deep_link_encoded=True))
+    private_router.message.register(command_start, CommandStart())
     private_router.message.register(command_addchannel, commands=["addchannel"], state=None)
     private_router.message.register(command_contest, commands=["contest"])
     private_router.message.register(wait_channel, state=UserStatus.wait_channel_message)
