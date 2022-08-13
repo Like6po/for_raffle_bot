@@ -9,7 +9,7 @@ async def choose_contest_to_finish(cbq: CallbackQuery,
                                    callback_data: ContestCallback,
                                    contest_db: ContestContext):
     if len(contest_list := await contest_db.get_all(callback_data.channel_id)) <= 0:
-        return await cbq.answer('У вас отсутствуют активные конкурсы.')
+        return await cbq.answer('У вас отсутствуют активные конкурсы.', show_alert=True)
 
     await cbq.message.edit_reply_markup(
         results_kb(contest_list, callback_data.channel_id)

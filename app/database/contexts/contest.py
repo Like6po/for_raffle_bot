@@ -57,3 +57,6 @@ class ContestContext(DatabaseContext):
 
     async def get_all(self, channel_db_id: int) -> List[Contest]:
         return await super().get_all(Contest.channel_id == channel_db_id)
+
+    async def finish(self, contest_db_id: int):
+        return await super().delete(Contest.id == contest_db_id)

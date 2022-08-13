@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker
 from database.models import DatabaseModel
 from handlers import register_routers
 from misc.config import load_config
+from misc.set_bot_commands import set_bot_commands
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +39,8 @@ async def main():
         # await conn.run_sync(DatabaseModel.metadata.drop_all)
         await conn.run_sync(DatabaseModel.metadata.create_all)
 
-    # noinspection PyTypeChecker
+    await set_bot_commands(bot)
     sqlalchemy_session_pool = sessionmaker(bind=engine, expire_on_commit=False, class_=AsyncSession)
-
     register_routers(dp, sqlalchemy_session_pool, bot)
 
     # start
