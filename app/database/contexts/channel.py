@@ -11,7 +11,6 @@ from database.models.channel import Channel
 
 
 class ChannelContext(DatabaseContext):
-
     def __init__(
             self,
             session_or_pool: Union[sessionmaker, AsyncSession],

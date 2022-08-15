@@ -64,6 +64,21 @@ async def contest_condition(cbq: CallbackQuery,
     elif callback_data.last_state == 'winner_count':
         if callback_data.condition:
             state_data.update({
+                'sponsor_channels': None
+            })
+            await cbq.message.edit_text(
+                '📅 Когда опубликуем пост?',
+                reply_markup=contest_kb(callback_data.channel_id, last_state='sponsor_channels',
+                                        condition_buttons_title=('🔜 Сразу', '📆 В определённую дату')))
+        else:
+            await state.set_state(ContestStatus.sponsor_channels)
+            await cbq.message.edit_text(
+                f'Через пробел и @ отправьте че то там.',
+                reply_markup=contest_kb(callback_data.channel_id, last_state='sponsor_channels'))
+
+    elif callback_data.last_state == 'sponsor_channels':
+        if callback_data.condition:
+            state_data.update({
                 'start_at': None
             })
             await cbq.message.edit_text(

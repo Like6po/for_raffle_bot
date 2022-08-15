@@ -1,31 +1,41 @@
 from aiogram import Bot
 from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.types import Message
-from aiogram.utils.markdown import hbold
+from aiogram.utils.markdown import hbold, hcode
 
+from database.contexts import ChannelContext
 from keyboards.contest import contest_kb, post_button_kb
 from misc.contest import get_content, send_post
 
 
 async def collect_data(message: Message,
                        state: FSMContext,
-                       bot: Bot):
+                       bot: Bot,
+                       channel_db: ChannelContext):
     state_data = await state.get_data()
     last_state = (await state.get_state()).split(':')[-1]
 
     if not state_data.get('channel_id', None):
         return await message.reply('Ой-ой! channel_id был утерян!\nplaceholder: /start ')
 
-    if content := get_content(message, last_state):
+    if content := await get_content(message, last_state, bot, channel_db):
         if last_state in ['end_count', 'end_at']:
             state_data.update({
                 'end_count' if last_state == 'end_at' else 'end_at': None
             })
 
-        state_data.update({
-            last_state: content
-        })
-        await state.update_data(state_data)
+        if last_state == 'sponsor_channels':
+            if content is not True:
+                ids_set = state_data.get(last_state, set())
+                ids_set.update(content)
+                state_data.update({last_state: ids_set})
+                await state.update_data(state_data)
+        else:
+            state_data.update({
+                last_state: content
+            })
+            await state.update_data(state_data)
+        # print(f'{last_state}: {state_data}')
     else:
         await message.answer('Структура сообщения не верна!')
         return
@@ -50,7 +60,18 @@ async def collect_data(message: Message,
                              reply_markup=contest_kb(state_data['channel_id'],
                                                      last_state=last_state,
                                                      condition_buttons_title=('✅ Включить', '❌ Отключить')))
+
     elif last_state == 'winner_count':
+        await state.set_state()
+        await message.answer(
+            'Каналы-спонсоры?',
+            reply_markup=contest_kb(state_data['channel_id'],
+                                    last_state=last_state,
+                                    condition_buttons_title=('Без', 'Указать')))
+
+    elif last_state == 'sponsor_channels':
+        if not message.text.lower() == 'закончить':
+            return await message.reply(f'Чтобы закончить напишите {hcode("закончить")}.')
         await state.set_state()
         await message.answer(
             '📅 Когда опубликуем пост?',
