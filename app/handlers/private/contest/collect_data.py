@@ -27,14 +27,18 @@ async def collect_data(message: Message,
         if last_state == 'sponsor_channels':
             if content is not True:
                 ids_set = state_data.get(last_state, set())
+                if ids_set is None:  # если использовать "назад"
+                    ids_set = set()
                 ids_set.update(content)
                 state_data.update({last_state: ids_set})
-                await state.update_data(state_data)
+            else:  # если сразу написать Закончить
+                if not state_data.get(last_state, None):
+                    state_data.update({last_state: None})
         else:
             state_data.update({
                 last_state: content
             })
-            await state.update_data(state_data)
+        await state.update_data(state_data)
         # print(f'{last_state}: {state_data}')
     else:
         await message.answer('Структура сообщения не верна!')
@@ -64,14 +68,14 @@ async def collect_data(message: Message,
     elif last_state == 'winner_count':
         await state.set_state()
         await message.answer(
-            'Каналы-спонсоры?',
+            'Каналы-участники?',
             reply_markup=contest_kb(state_data['channel_id'],
                                     last_state=last_state,
                                     condition_buttons_title=('Без', 'Указать')))
 
     elif last_state == 'sponsor_channels':
         if not message.text.lower() == 'закончить':
-            return await message.reply(f'Чтобы закончить напишите {hcode("закончить")}.')
+            return await message.reply(f'Чтобы закончить напишите {hcode("Закончить")}.')
         await state.set_state()
         await message.answer(
             '📅 Когда опубликуем пост?',
@@ -91,6 +95,7 @@ async def collect_data(message: Message,
                              f"\n{hbold('▶ Публикация:')} {state_data['start_at'].strftime('в %H:%M %d.%m.%Y') if state_data['start_at'] else 'Сейчас'}"
                              f"\n{hbold('⏸ Окончание:')} {state_data['end_at'].strftime('в %H:%M %d.%m.%Y') if state_data['end_at'] else 'после %s участников' % (state_data['end_count'])}"
                              f"\n{hbold('🌐 Предпросмотр ссылок:')} {'✅' if state_data['is_attachment_preview'] else '❌'}"
+                             f"\n{hbold('🌐 Каналы-участники:')} {state_data['sponsor_channels'] if state_data['sponsor_channels'] else '❌'}"
                              f"\n\n❗ Проверьте данные!",
                              reply_markup=contest_kb(state_data['channel_id'], last_state=last_state,
                                                      condition_buttons_title=['✔ Готово!']))

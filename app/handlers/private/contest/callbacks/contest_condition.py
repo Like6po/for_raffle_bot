@@ -73,7 +73,8 @@ async def contest_condition(cbq: CallbackQuery,
         else:
             await state.set_state(ContestStatus.sponsor_channels)
             await cbq.message.edit_text(
-                f'Через пробел и @ отправьте че то там.',
+                f'Укажите юзернеймы каналов через пробел или перешлите сообщение из канала.'
+                f'ex: @danya @dane4ka @danil',
                 reply_markup=contest_kb(callback_data.channel_id, last_state='sponsor_channels'))
 
     elif callback_data.last_state == 'sponsor_channels':
@@ -115,7 +116,8 @@ async def contest_condition(cbq: CallbackQuery,
                                             attachment_hash=state_data['attachment_hash'],
                                             start_at=state_data['start_at'],
                                             end_at=state_data['end_at'],
-                                            end_count=state_data['end_count'])
+                                            end_count=state_data['end_count'],
+                                            sponsor_channels=state_data['sponsor_channels'])
 
         msg = await send_post(bot, channel_data.tg_id, state_data,
                               post_button_kb(state_data['btn_title'], contest_data.id))

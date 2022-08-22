@@ -37,7 +37,8 @@ async def contest_return(cbq: CallbackQuery,
                                                             last_state='is_attachment_preview'))
 
     elif callback_data.last_state == 'sponsor_channels':
-        await cbq.message.edit_text('sponsor_channels in return func',
+        await cbq.message.edit_text(f'Укажите юзернеймы каналов через пробел или перешлите сообщение из канала.'
+                                    f'ex: @danya @dane4ka @danil',
                                     reply_markup=contest_kb(callback_data.channel_id,
                                                             last_state='winner_count',
                                                             condition_buttons_title=('Без', 'Указать')))
