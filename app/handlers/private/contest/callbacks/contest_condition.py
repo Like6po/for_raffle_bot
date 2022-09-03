@@ -63,22 +63,28 @@ async def contest_condition(cbq: CallbackQuery,
 
     elif callback_data.last_state == 'winner_count':
         if callback_data.condition:
+            await state.set_state(ContestStatus.sponsor_channels)
+            await cbq.message.edit_text(
+                f'Укажите юзернеймы каналов через пробел или перешлите сообщение из канала. Важно чтобы бот был администратором в данном канале!'
+                f'ex: @danya @dane4ka @danil',
+                reply_markup=contest_kb(callback_data.channel_id, last_state='sponsor_channels'))
+        else:
             state_data.update({
                 'sponsor_channels': None
             })
             await cbq.message.edit_text(
                 '📅 Когда опубликуем пост?',
                 reply_markup=contest_kb(callback_data.channel_id, last_state='sponsor_channels',
-                                        condition_buttons_title=('🔜 Сразу', '📆 В определённую дату')))
-        else:
-            await state.set_state(ContestStatus.sponsor_channels)
-            await cbq.message.edit_text(
-                f'Укажите юзернеймы каналов через пробел или перешлите сообщение из канала.'
-                f'ex: @danya @dane4ka @danil',
-                reply_markup=contest_kb(callback_data.channel_id, last_state='sponsor_channels'))
+                                        condition_buttons_title=('📆 В определённую дату', '🔜 Сразу')))
 
     elif callback_data.last_state == 'sponsor_channels':
         if callback_data.condition:
+            await state.set_state(ContestStatus.start_at)
+            await cbq.message.edit_text(
+                f'Отправь мне дату публикации поста!\nФормат: {hbold("часы:минуты день.месяц.год")}\n'
+                f'Пример: {hbold("18:03 08.09.2022")}',
+                reply_markup=contest_kb(callback_data.channel_id, last_state='start_at'))
+        else:
             state_data.update({
                 'start_at': None
             })
@@ -86,12 +92,6 @@ async def contest_condition(cbq: CallbackQuery,
                 '⛔ Конкурс будет закончен в определённую дату или при достижении нужного количества участников?',
                 reply_markup=contest_kb(callback_data.channel_id, last_state='start_at',
                                         condition_buttons_title=('👤 Учаcтники', '📆 Дата')))
-        else:
-            await state.set_state(ContestStatus.start_at)
-            await cbq.message.edit_text(
-                f'Отправь мне дату публикации поста!\nФормат: {hbold("часы:минуты день.месяц.год")}\n'
-                f'Пример: {hbold("18:03 08.09.2022")}',
-                reply_markup=contest_kb(callback_data.channel_id, last_state='start_at'))
 
     elif callback_data.last_state == 'start_at':
         if callback_data.condition:
