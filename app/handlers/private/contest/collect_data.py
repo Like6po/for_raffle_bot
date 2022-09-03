@@ -6,6 +6,7 @@ from aiogram.utils.markdown import hbold, hcode
 from database.contexts import ChannelContext
 from keyboards.contest import contest_kb, post_button_kb
 from misc.contest import get_content, send_post
+from misc.links import chat_link
 
 
 async def collect_data(message: Message,
@@ -41,7 +42,7 @@ async def collect_data(message: Message,
         await state.update_data(state_data)
         # print(f'{last_state}: {state_data}')
     else:
-        await message.answer('Структура сообщения не верна!')
+        await message.answer('Структура сообщения не верна или контент не найден в базе данных!')
         return
 
     if last_state == 'text':
@@ -68,19 +69,19 @@ async def collect_data(message: Message,
     elif last_state == 'winner_count':
         await state.set_state()
         await message.answer(
-            'Каналы-участники?',
+            'Хотите добавить каналы-спонсоры?',
             reply_markup=contest_kb(state_data['channel_id'],
                                     last_state=last_state,
-                                    condition_buttons_title=('Без', 'Указать')))
+                                    condition_buttons_title=('✅ Да', '❌ Нет')))
 
     elif last_state == 'sponsor_channels':
         if not message.text.lower() == 'закончить':
-            return await message.reply(f'Чтобы закончить напишите {hcode("Закончить")}.')
+            return await message.reply(f'Канал добавлен!\nЧтобы закончить напишите {hcode("Закончить")}.')
         await state.set_state()
         await message.answer(
             '📅 Когда опубликуем пост?',
             reply_markup=contest_kb(state_data['channel_id'], last_state=last_state,
-                                    condition_buttons_title=('🔜 Сразу', '📆 В определённую дату')))
+                                    condition_buttons_title=('📆 В определённую дату', '🔜 Сразу')))
 
     elif last_state == 'start_at':
         await state.set_state()
@@ -91,11 +92,18 @@ async def collect_data(message: Message,
 
     elif last_state in ['end_count', 'end_at']:
         await send_post(bot, message.from_user.id, state_data, post_button_kb(state_data['btn_title'], 0))  # 0 костыль
+
+        if state_data['sponsor_channels']:
+            sponsors_list = [await channel_db.get(tg_id=channel) for channel in state_data['sponsor_channels']]
+            sponsors_list = [
+                f"{chat_link(username=channel.username, tg_id=channel.tg_id, title=channel.title)}" for channel in sponsors_list]
+            sponsors_list = ', '.join(sponsors_list)
+
         await message.answer(f"{hbold('👥 Кол-во победителей:')} {state_data['winner_count']}"
                              f"\n{hbold('▶ Публикация:')} {state_data['start_at'].strftime('в %H:%M %d.%m.%Y') if state_data['start_at'] else 'Сейчас'}"
                              f"\n{hbold('⏸ Окончание:')} {state_data['end_at'].strftime('в %H:%M %d.%m.%Y') if state_data['end_at'] else 'после %s участников' % (state_data['end_count'])}"
                              f"\n{hbold('🌐 Предпросмотр ссылок:')} {'✅' if state_data['is_attachment_preview'] else '❌'}"
-                             f"\n{hbold('🌐 Каналы-участники:')} {state_data['sponsor_channels'] if state_data['sponsor_channels'] else '❌'}"
+                             f"\n{hbold('🌐 Каналы-спонсоры:')} {sponsors_list if state_data['sponsor_channels'] else '❌'}"
                              f"\n\n❗ Проверьте данные!",
                              reply_markup=contest_kb(state_data['channel_id'], last_state=last_state,
                                                      condition_buttons_title=['✔ Готово!']))
