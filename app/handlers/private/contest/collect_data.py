@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from aiogram import Bot
 from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.types import Message
@@ -91,9 +93,11 @@ async def collect_data(message: Message,
 
     elif last_state in ['end_count', 'end_at']:
         await send_post(bot, message.from_user.id, state_data, post_button_kb(state_data['btn_title'], 0))  # 0 костыль
+        state_data['start_at'] = datetime.fromisoformat(state_data['start_at']).strftime('в %H:%M %d.%m.%Y') if state_data['start_at'] else 'Сейчас'
+        state_data['end_at'] = datetime.fromisoformat(state_data['end_at']).strftime('в %H:%M %d.%m.%Y') if state_data['end_at'] else f'После {state_data["end_count"]} участников'
         await message.answer(f"{hbold('👥 Кол-во победителей:')} {state_data['winner_count']}"
-                             f"\n{hbold('▶ Публикация:')} {state_data['start_at'].strftime('в %H:%M %d.%m.%Y') if state_data['start_at'] else 'Сейчас'}"
-                             f"\n{hbold('⏸ Окончание:')} {state_data['end_at'].strftime('в %H:%M %d.%m.%Y') if state_data['end_at'] else 'после %s участников' % (state_data['end_count'])}"
+                             f"\n{hbold('▶ Публикация:')} {state_data['start_at']}"
+                             f"\n{hbold('⏸ Окончание:')} {state_data['end_at']}"
                              f"\n{hbold('🌐 Предпросмотр ссылок:')} {'✅' if state_data['is_attachment_preview'] else '❌'}"
                              f"\n{hbold('🌐 Каналы-участники:')} {state_data['sponsor_channels'] if state_data['sponsor_channels'] else '❌'}"
                              f"\n\n❗ Проверьте данные!",

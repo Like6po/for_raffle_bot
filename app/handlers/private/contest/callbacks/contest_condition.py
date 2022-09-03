@@ -1,11 +1,18 @@
+from datetime import datetime, timedelta
+
 from aiogram import Bot
 from aiogram.dispatcher.fsm.context import FSMContext
 from aiogram.types import CallbackQuery
 from aiogram.utils.markdown import hbold
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from apscheduler.triggers.interval import IntervalTrigger
 
 from database.contexts import ChannelContext, ContestContext
 from keyboards.contest import contest_kb, post_button_kb, ContestCallback
+from misc.config import config
 from misc.contest import send_post
+from scheduled.close_contest import close_contest
+from scheduled.start_contest import start_contest
 from states.contest import ContestStatus
 
 
@@ -14,7 +21,9 @@ async def contest_condition(cbq: CallbackQuery,
                             callback_data: ContestCallback,
                             state: FSMContext,
                             channel_db: ChannelContext,
-                            contest_db: ContestContext):
+                            contest_db: ContestContext,
+                            bot_pickle,
+                            scheduler: AsyncIOScheduler):
     state_data = await state.get_data()
 
     if not state_data.get('channel_id', None):
@@ -106,6 +115,9 @@ async def contest_condition(cbq: CallbackQuery,
                 reply_markup=contest_kb(callback_data.channel_id, last_state='end_at'))
 
     elif callback_data.last_state in ['end_count', 'end_at']:
+        state_data['start_at'] = datetime.fromisoformat(state_data['start_at']) if state_data['start_at'] else None
+        state_data['end_at'] = datetime.fromisoformat(state_data['end_at']) if state_data['end_at'] else None
+
         channel_data = await channel_db.get(channel_id=state_data['channel_id'])
         contest_data = await contest_db.new(user=cbq.from_user,
                                             channel=channel_data,
@@ -119,10 +131,30 @@ async def contest_condition(cbq: CallbackQuery,
                                             end_count=state_data['end_count'],
                                             sponsor_channels=state_data['sponsor_channels'])
 
-        msg = await send_post(bot, channel_data.tg_id, state_data,
-                              post_button_kb(state_data['btn_title'], contest_data.id))
+        if state_data['start_at']:
+            scheduler.add_job(start_contest, args=[bot_pickle, channel_data, contest_data, state_data],
+                              trigger=IntervalTrigger(start_date=state_data['start_at'],
+                                                      end_date=state_data['start_at'] + timedelta(seconds=5),
+                                                      timezone=config.timezone),
+                              max_instances=1, id=f'start_contest_{contest_data.id}', misfire_grace_time=3)
+            if state_data['start_at']:
+                secs = (state_data['end_at'] - state_data['start_at']).total_seconds()
+                scheduler.add_job(close_contest, args=[bot_pickle, contest_data],
+                                  trigger=IntervalTrigger(start_date=state_data['start_at'] + timedelta(seconds=secs),
+                                                          end_date=state_data['start_at'] + timedelta(seconds=secs + 5),
+                                                          timezone=config.timezone),
+                                  max_instances=1, id=f'close_contest_{contest_data.id}', misfire_grace_time=3)
+            return await cbq.message.edit_text('todo: succesfully added job')
 
-        await contest_db.set_message_id(contest_data.id, msg.message_id)
+        elif state_data['end_at']:
+            scheduler.add_job(close_contest, args=[bot_pickle, contest_data],
+                              trigger=IntervalTrigger(start_date=state_data['end_at'],
+                                                      end_date=state_data['end_at'] + timedelta(seconds=5),
+                                                      timezone=config.timezone),
+                              max_instances=1, id=f'close_contest_{contest_data.id}', misfire_grace_time=3)
+
+        await send_post(bot, channel_data.tg_id, state_data, post_button_kb(state_data['btn_title'], contest_data.id),
+                        True, contest_db, contest_data)
 
         return await cbq.message.edit_text('todo: finish text + keyboard')
 

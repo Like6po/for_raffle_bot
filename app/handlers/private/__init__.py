@@ -1,5 +1,6 @@
-from aiogram import Router, Bot, F
+from aiogram import Router, F
 from aiogram.dispatcher.filters.command import CommandStart
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from filters.chat_type import PrivateChatFilter
 from handlers.private.addchannel.base import command_addchannel
@@ -30,14 +31,14 @@ from states.contest import ContestStatus
 from states.user import UserStatus
 
 
-def create_private_router(session_pool, bot: Bot) -> Router:
+def create_private_router(session_pool, bot_pickle, scheduler: AsyncIOScheduler) -> Router:
     private_router: Router = Router(name="private_router")
 
     private_router.message.bind_filter(bound_filter=PrivateChatFilter)
     private_router.callback_query.bind_filter(bound_filter=PrivateChatFilter)
 
-    private_router.message.middleware(InitMiddleware(session_pool, bot))
-    private_router.callback_query.middleware(InitMiddleware(session_pool, bot))
+    private_router.message.middleware(InitMiddleware(session_pool, bot_pickle, scheduler))
+    private_router.callback_query.middleware(InitMiddleware(session_pool, bot_pickle, scheduler))
 
     private_router.message.register(command_start_deeplink, CommandStart(deep_link=True, deep_link_encoded=True))
     private_router.message.register(command_start, CommandStart())

@@ -7,7 +7,7 @@ from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Message, ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember, ChatMember
 
 from database.contexts import ContestContext, ContestMemberContext, MemberContext, ChannelContext
-from database.models import Member, ContestMember
+from database.models import Member, ContestMember, Contest
 from misc.links import post_link, user_link
 
 
@@ -67,27 +67,41 @@ async def get_content(message: Message,
 
     elif last_state in ['start_at', 'end_at']:
         try:
-            return datetime.strptime(message.text, '%H:%M %d.%m.%Y')
+            return datetime.strptime(message.text, '%H:%M %d.%m.%Y').isoformat()
         except:
             return None
 
 
-async def send_post(bot: Bot, chat_id: int, state_data: dict, reply_markup=None) -> Message:
+async def send_post(bot: Bot,
+                    chat_id: int,
+                    state_data: dict,
+                    reply_markup=None,
+                    is_contest_start=False,
+                    contest_db: ContestContext = None,
+                    contest_data: Contest = None) -> None:
+    msg = None
+
     if not state_data['attachment_hash']:
-        return await bot.send_message(chat_id=chat_id, text=state_data['text'], parse_mode='HTML',
-                                      reply_markup=reply_markup,
-                                      disable_web_page_preview=state_data['is_attachment_preview'])
+        msg = await bot.send_message(chat_id=chat_id, text=state_data['text'], parse_mode='HTML',
+                                     reply_markup=reply_markup,
+                                     disable_web_page_preview=state_data['is_attachment_preview'])
+        if is_contest_start:
+            await contest_db.set_message_id(contest_data.id, msg.message_id)
+        return
 
     file_type = state_data['attachment_hash'].split(':')[-1]
     if file_type == 'photo':
-        return await bot.send_photo(chat_id=chat_id, photo=state_data['attachment_hash'].split(':')[0],
-                                    caption=state_data['text'],
-                                    parse_mode='HTML', reply_markup=reply_markup)
+        msg = await bot.send_photo(chat_id=chat_id, photo=state_data['attachment_hash'].split(':')[0],
+                                   caption=state_data['text'],
+                                   parse_mode='HTML', reply_markup=reply_markup)
 
     elif file_type == 'document':
-        return await bot.send_document(chat_id=chat_id, document=state_data['attachment_hash'].split(':')[0],
-                                       caption=state_data['text'],
-                                       parse_mode='HTML', reply_markup=reply_markup)
+        msg = await bot.send_document(chat_id=chat_id, document=state_data['attachment_hash'].split(':')[0],
+                                      caption=state_data['text'],
+                                      parse_mode='HTML', reply_markup=reply_markup)
+
+    if is_contest_start:
+        await contest_db.set_message_id(contest_data.id, msg.message_id)
 
 
 def is_channel_member(chat_member: ChatMember):

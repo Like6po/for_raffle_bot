@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 
 from environs import Env
+from pytz import timezone
 from sqlalchemy.engine import URL
 
 
@@ -29,9 +30,17 @@ class TgBot:
 
 
 @dataclass
+class Redis:
+    host: str
+    port: str
+
+
+@dataclass
 class Config:
     tg_bot: TgBot
     db: DbConfig
+    redis: Redis
+    timezone = timezone('Europe/Moscow')
 
 
 def load_config(path: str = None):
@@ -49,4 +58,11 @@ def load_config(path: str = None):
             database=env.str('POSTGRES_DB'),
             port=env.int("POSTGRES_PORT")
         ),
+        redis=Redis(
+            host=env.str("REDIS_HOST"),
+            port=env.str("REDIS_PORT")
+        ),
     )
+
+
+config = load_config("../.env")

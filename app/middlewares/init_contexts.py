@@ -1,7 +1,8 @@
 from typing import Callable, Dict, Any, Awaitable
 
-from aiogram import BaseMiddleware, Bot
+from aiogram import BaseMiddleware
 from aiogram.types import TelegramObject
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from database.contexts import ContestContext, ContestMemberContext, MemberContext, UserChannelContext, \
@@ -10,9 +11,10 @@ from database.models import ContestMember, Contest, Member, UserChannel, Channel
 
 
 class InitMiddleware(BaseMiddleware):
-    def __init__(self, session_pool, bot: Bot):
+    def __init__(self, session_pool, bot_pickle, scheduler: AsyncIOScheduler):
         self.session_pool = session_pool
-        self.bot = bot
+        self.bot_pickle = bot_pickle
+        self.scheduler = scheduler
         super().__init__()
 
     @classmethod
@@ -22,7 +24,8 @@ class InitMiddleware(BaseMiddleware):
             await session.close()
 
     def create_contexts(self, data: Dict[str, Any], session: AsyncSession):
-        data["bot"] = self.bot
+        data["bot_pickle"] = self.bot_pickle
+        data["scheduler"] = self.scheduler
         data["user_db"] = UserContext(session, query_model=User)
         data["channel_db"] = ChannelContext(session, query_model=Channel)
         data["member_db"] = MemberContext(session, query_model=Member)

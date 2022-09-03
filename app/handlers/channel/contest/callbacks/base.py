@@ -21,7 +21,7 @@ async def contest_join(cbq: CallbackQuery,
     if not is_channel_member(await bot.get_chat_member(contest_data.channel_tg_id, cbq.from_user.id)):
         return await cbq.answer('Для начала подпишитесь на этот канал!', show_alert=True)
 
-    for channel_id in contest_data.sponsor_channels:
+    for channel_id in contest_data.sponsor_channels or set():
         if not is_channel_member(await bot.get_chat_member(channel_id, cbq.from_user.id)):
             return await cbq.answer(f'Вы не подписаны на '
                                     f'{html.quote((await channel_db.get(tg_id=channel_id)).title)}!', show_alert=True)
