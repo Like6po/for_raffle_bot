@@ -29,15 +29,19 @@ async def get_content(message: Message,
         return None
 
     elif last_state == 'sponsor_channels':
-        if message.text.lower() == 'закончить':
-            return True
-
         channel_ids_set = set()
 
         # если переслано сообщение из канала
         if message.forward_from_chat:
-            channel_ids_set.add((await channel_db.get(message.forward_from_chat)).tg_id)
-            return channel_ids_set
+            channel = await channel_db.get(message.forward_from_chat)
+            if channel:
+                channel_ids_set.add(channel.tg_id)
+                return channel_ids_set
+            else:
+                return
+
+        if message.text.lower() == 'закончить':
+            return True
 
         # если условие выше не выполнено (т.е юзернеймы каналов в тексте)
         try:
@@ -94,21 +98,19 @@ def is_channel_member(chat_member: ChatMember):
     return isinstance(chat_member, (ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember))
 
 
-async def choose_the_winners(bot: Bot,
-                             contest_db: ContestContext,
+async def choose_the_winners(contest_db: ContestContext,
                              contest_members_db: ContestMemberContext,
                              member_db: MemberContext,
                              contest_db_id: int):
     contest_data = await contest_db.get_by_db_id(contest_db_id)
     contest_members_list = await contest_members_db.get_all(contest_db_id)
 
-    # if len(contest_members_list) <= 0:
-    #     pass TODO: если 0 участников
-
     winners_list: List[Member | ContestMember] = list()
 
     # щас winners_list это список ContestMember
     for _ in range(0, contest_data.winner_count):
+        if len(contest_members_list) <= 0:
+            break
         winner = choice(contest_members_list)
         winners_list.append(winner)
         contest_members_list.remove(winner)
@@ -117,21 +119,8 @@ async def choose_the_winners(bot: Bot,
     for index, winner in enumerate(winners_list):
         winners_list[index] = await member_db.get(db_id=winner.member_db_id)
 
-    await contest_db.finish(contest_db_id)
-    await contest_members_db.finish_contest(contest_db_id)
+    if len(winners_list) > 0:
+        await contest_db.finish(contest_db_id)
+        await contest_members_db.finish_contest(contest_db_id)
 
-    string = f'Ура, победители!\n\nСписок: ' + \
-             ', '.join(f'{i + 1}) {user_link(title=user.full_name, tg_id=user.tg_id)}'
-                       for i, user in enumerate(winners_list))
-
-    msg = await bot.send_message(contest_data.channel_tg_id, string, reply_to_message_id=contest_data.message_id)
-    link_to_post = post_link(contest_data.channel_tg_id, msg.message_id)
-
-    if contest_data.attachment_hash:
-        await bot.edit_message_caption(contest_data.channel_tg_id,
-                                       contest_data.message_id,
-                                       caption=contest_data.text + f'\n\nПобедители: {link_to_post}')
-    else:
-        await bot.edit_message_text(contest_data.text + f'\n\nПобедители: {link_to_post}',
-                                    contest_data.channel_tg_id,
-                                    contest_data.message_id)
+    return winners_list
