@@ -116,27 +116,27 @@ async def choose_the_winners(bot: Bot,
     contest_data = await contest_db.get_by_db_id(contest_db_id)
     contest_members_list = await contest_members_db.get_all(contest_db_id)
 
-    # if len(contest_members_list) <= 0:
-    #     pass TODO: если 0 участников
+    if not len(contest_members_list) <= 0:
+        winners_list: List[Member | ContestMember] = list()
 
-    winners_list: List[Member | ContestMember] = list()
+        # щас winners_list это список ContestMember
+        for _ in range(0, contest_data.winner_count):
+            winner = choice(contest_members_list)
+            winners_list.append(winner)
+            contest_members_list.remove(winner)
 
-    # щас winners_list это список ContestMember
-    for _ in range(0, contest_data.winner_count):
-        winner = choice(contest_members_list)
-        winners_list.append(winner)
-        contest_members_list.remove(winner)
+        # а тут превращается в список Member
+        for index, winner in enumerate(winners_list):
+            winners_list[index] = await member_db.get(db_id=winner.member_db_id)
 
-    # а тут превращается в список Member
-    for index, winner in enumerate(winners_list):
-        winners_list[index] = await member_db.get(db_id=winner.member_db_id)
+        string = f'Ура, победители!\n\nСписок: ' + \
+                 ', '.join(f'{i + 1}) {user_link(title=user.full_name, tg_id=user.tg_id)}'
+                           for i, user in enumerate(winners_list))
+    else:
+        string = 'Победители отсутствуют.'
 
     await contest_db.finish(contest_db_id)
     await contest_members_db.finish_contest(contest_db_id)
-
-    string = f'Ура, победители!\n\nСписок: ' + \
-             ', '.join(f'{i + 1}) {user_link(title=user.full_name, tg_id=user.tg_id)}'
-                       for i, user in enumerate(winners_list))
 
     msg = await bot.send_message(contest_data.channel_tg_id, string, reply_to_message_id=contest_data.message_id)
     link_to_post = post_link(contest_data.channel_tg_id, msg.message_id)
