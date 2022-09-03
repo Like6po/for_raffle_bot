@@ -2,8 +2,9 @@ import logging
 from datetime import datetime
 from typing import Any, Union, Type, List
 
+from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, DataError
-from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import AsyncSession, AsyncResult
 from sqlalchemy.orm import sessionmaker
 
 from database.contexts.base import DatabaseContext, SQLAlchemyModel
@@ -59,6 +60,21 @@ class ContestContext(DatabaseContext):
 
     async def get_all(self, channel_db_id: int) -> List[Contest]:
         return await super().get_all(Contest.channel_id == channel_db_id)
+
+    async def get(self, channel_db_id: int,
+                  limit=10,
+                  offset=0) -> List[Contest]:
+        statement = select(Contest).where(Contest.channel_id == channel_db_id).order_by(
+            Contest.id.asc()).limit(limit=limit).offset(offset=offset)
+
+        async with self._transaction:
+            # noinspection PyTypeChecker
+            result: AsyncResult = await self._session.execute(statement)
+            first_scalar_result = result.scalars().all()
+        return first_scalar_result  # type: ignore
+
+    async def count(self, channel_db_id: int = None) -> int:
+        return await super().count(Contest.channel_id == channel_db_id)
 
     async def finish(self, contest_db_id: int):
         return await super().delete(Contest.id == contest_db_id)

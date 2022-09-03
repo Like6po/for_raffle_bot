@@ -15,3 +15,4 @@ async def contest_channel_choice(cbq: CallbackQuery,
                                            await contest_db.get_all(callback_data.channel_id)),
         reply_markup=contest_action_kb(chnl.id)
     )
+    await cbq.answer()

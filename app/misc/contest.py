@@ -116,6 +116,9 @@ async def choose_the_winners(bot: Bot,
     contest_data = await contest_db.get_by_db_id(contest_db_id)
     contest_members_list = await contest_members_db.get_all(contest_db_id)
 
+    if not contest_data:
+        return
+
     if not len(contest_members_list) <= 0:
         winners_list: List[Member | ContestMember] = list()
 

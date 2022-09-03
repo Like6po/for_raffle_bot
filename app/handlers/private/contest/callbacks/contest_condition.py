@@ -137,7 +137,7 @@ async def contest_condition(cbq: CallbackQuery,
                                                       end_date=state_data['start_at'] + timedelta(seconds=5),
                                                       timezone=config.timezone),
                               max_instances=1, id=f'start_contest_{contest_data.id}', misfire_grace_time=3)
-            if state_data['start_at']:
+            if state_data['end_at']:
                 secs = (state_data['end_at'] - state_data['start_at']).total_seconds()
                 scheduler.add_job(close_contest, args=[bot_pickle, contest_data],
                                   trigger=IntervalTrigger(start_date=state_data['start_at'] + timedelta(seconds=secs),
