@@ -8,7 +8,9 @@ from aiogram.types import Message, ChatMemberOwner, ChatMemberAdministrator, Cha
 
 from database.contexts import ContestContext, ContestMemberContext, MemberContext, ChannelContext
 from database.models import Member, ContestMember, Contest
-from misc.links import post_link, user_link
+from keyboards.results import post_button_with_results
+from misc.links import user_link
+from misc.telegraph_api import create_page_with_winners
 
 
 async def get_content(message: Message,
@@ -141,14 +143,10 @@ async def choose_the_winners(bot: Bot,
     await contest_db.finish(contest_db_id)
     await contest_members_db.finish_contest(contest_db_id)
 
-    msg = await bot.send_message(contest_data.channel_tg_id, string, reply_to_message_id=contest_data.message_id)
-    link_to_post = post_link(contest_data.channel_tg_id, msg.message_id)
+    link = await create_page_with_winners(string)
 
-    if contest_data.attachment_hash:
-        await bot.edit_message_caption(contest_data.channel_tg_id,
-                                       contest_data.message_id,
-                                       caption=contest_data.text + f'\n\nПобедители: {link_to_post}')
-    else:
-        await bot.edit_message_text(contest_data.text + f'\n\nПобедители: {link_to_post}',
-                                    contest_data.channel_tg_id,
-                                    contest_data.message_id)
+    await bot.send_message(contest_data.channel_tg_id, string, reply_to_message_id=contest_data.message_id)
+
+    await bot.edit_message_reply_markup(contest_data.channel_tg_id,
+                                        contest_data.message_id,
+                                        reply_markup=post_button_with_results(link))

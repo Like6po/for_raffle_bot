@@ -36,10 +36,16 @@ class Redis:
 
 
 @dataclass
+class Telegraph:
+    token: str
+
+
+@dataclass
 class Config:
     tg_bot: TgBot
     db: DbConfig
     redis: Redis
+    telegraph: Telegraph
     timezone = timezone('Europe/Moscow')
 
 
@@ -62,6 +68,9 @@ def load_config(path: str = None):
             host=env.str("REDIS_HOST"),
             port=env.str("REDIS_PORT")
         ),
+        telegraph=Telegraph(
+            token=env.str("TELEGRAPH_TOKEN")
+        )
     )
 
 

@@ -64,3 +64,10 @@ def results_kb(contests: List[Contest],
                                                                   channel_id=channel_db_id).pack()))
 
     return kb_obj.as_markup()
+
+
+def post_button_with_results(link: str):
+    kb_obj = InlineKeyboardBuilder()
+    kb_obj.row(InlineKeyboardButton(text='Список Победителей', url=link))
+
+    return kb_obj.as_markup()
