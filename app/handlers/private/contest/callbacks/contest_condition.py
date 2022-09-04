@@ -115,6 +115,8 @@ async def contest_condition(cbq: CallbackQuery,
                 reply_markup=contest_kb(callback_data.channel_id, last_state='end_at'))
 
     elif callback_data.last_state in ['end_count', 'end_at']:
+        await state.clear()
+
         state_data['start_at'] = datetime.fromisoformat(state_data['start_at']) if state_data['start_at'] else None
         state_data['end_at'] = datetime.fromisoformat(state_data['end_at']) if state_data['end_at'] else None
 
