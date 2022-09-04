@@ -26,4 +26,4 @@ async def contest_close_cbq(cbq: CallbackQuery,
             page=callback_data.page + 1),
         reply_markup=results_kb(contest_list, count, callback_data.channel_db_id, callback_data.page + 1)
     )
-    await cbq.answer('Успешно закончил конкурс.', show_alert=True)
+    await cbq.answer(f'Успешно закончил конкурс #{callback_data.contest_db_id}.', show_alert=True)

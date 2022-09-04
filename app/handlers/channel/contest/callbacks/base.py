@@ -18,6 +18,11 @@ async def contest_join(cbq: CallbackQuery,
     member_data = await member_db.get_or_create_and_get(cbq.from_user)
     contest_data = await contest_db.get_by_db_id(callback_data.contest_db_id)
 
+    if not contest_data:
+        return await cbq.answer('Конкурс не найден. Возможно, он был удален создателем.',
+                                show_alert=True,
+                                cache_time=300)
+
     if not is_channel_member(await bot.get_chat_member(contest_data.channel_tg_id, cbq.from_user.id)):
         return await cbq.answer('Для начала подпишитесь на этот канал!', show_alert=True)
 

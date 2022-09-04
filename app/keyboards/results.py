@@ -15,7 +15,13 @@ class ResultsCallback(CallbackData, prefix="results"):
     page: int
 
 
-class ResultsChangePageCallback(CallbackData, prefix="results"):
+class ResultsChangePageCallback(CallbackData, prefix="results_change_page"):
+    channel_db_id: int
+    page: int
+
+
+class ResultsDeleteContestCallback(CallbackData, prefix="results_delete_contest"):
+    contest_db_id: int
     channel_db_id: int
     page: int
 
@@ -27,10 +33,15 @@ def results_kb(contests: List[Contest],
     kb_obj = InlineKeyboardBuilder()
     for i, contest in enumerate(contests):
         text = unescape(contest.text)
-        kb_obj.row(InlineKeyboardButton(text=f'[#{i + 1}] {text[:20] + "..." if len(text) > 15 else text}',
+        kb_obj.row(InlineKeyboardButton(text=f'[#{i + 1}] {text}',
                                         callback_data=ResultsCallback(contest_db_id=contest.id,
                                                                       channel_db_id=channel_db_id,
                                                                       page=page).pack()))
+        kb_obj.add(
+            InlineKeyboardButton(text=f'⬅ Удалить',
+                                 callback_data=ResultsDeleteContestCallback(contest_db_id=contest.id,
+                                                                            channel_db_id=channel_db_id,
+                                                                            page=page).pack()))
     if page > 0:
         kb_obj.row(
             InlineKeyboardButton(text=f'« {page} стр. ',

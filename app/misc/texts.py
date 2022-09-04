@@ -18,8 +18,9 @@ def make_text_of_created_contests(channel: Channel,
     for index, contest in enumerate(contests[:30]):
         additional_text = contest.start_at.strftime(' — Начнется в %H:%M %d.%m.%Y.') \
             if contest.start_at and contest.start_at > datetime.now() else ''
-        channel_contest.append(f'{index + 1}) '
-                               f'{post_link(contest.channel_tg_id, contest.message_id, "Нажми")}{additional_text}')
+        link = post_link(contest.channel_tg_id, contest.message_id,
+                         contest.text[:27] + "..." if len(contest.text) > 30 else contest.text)
+        channel_contest.append(f'{index + 1}) {link}{additional_text}')
 
     return f"На данный момент в канале {hbold(channel.title)} " \
            f"проходят следующие конкурсы:\n\n" + '\n'.join(channel_contest)
@@ -38,8 +39,11 @@ def make_text_of_created_contests_with_pagination(channel: Channel,
     for index, contest in enumerate(contests):
         additional_text = contest.start_at.strftime(' — Начнется в %H:%M %d.%m.%Y.') \
             if contest.start_at and contest.start_at > datetime.now() else ''
-        channel_contest.append(f'{index + 1}) '
-                               f'{post_link(contest.channel_tg_id, contest.message_id, "Нажми")}{additional_text}')
+        link = post_link(contest.channel_tg_id, contest.message_id,
+                         contest.text[:27] + "..." if len(contest.text) > 30 else contest.text)
+        channel_contest.append(f'[#{index + 1}] {link}{additional_text}')
 
     return f"Конкурсы канала {hbold(channel.title)}:\n" \
-           f"{hbold(f'Страница: {page}/{ceil(contests_count / 10)}')}\n\n" + '\n'.join(channel_contest)
+           f"{hbold(f'Страница: {page}/{ceil(contests_count / 10)}')}\n\n" \
+           + '\n'.join(channel_contest) + "\n\nЧтобы завершить конкурс, нажмите на клавиатуре под " \
+                                          "этим сообщением соответствующую кнопку."

@@ -15,6 +15,7 @@ from handlers.private.contest.callbacks.contest_close_contest import contest_clo
 from handlers.private.contest.callbacks.contest_condition import contest_condition
 from handlers.private.contest.callbacks.contest_create import contest_create
 from handlers.private.contest.callbacks.contest_results_change_page import contest_results_change_page_cbq
+from handlers.private.contest.callbacks.contest_results_delete_contest import contest_results_delete_contest_cbq
 from handlers.private.contest.callbacks.contest_return import contest_return
 from handlers.private.contest.callbacks.contest_show_result_button import choose_contest_to_finish_cbq
 from handlers.private.contest.callbacks.post_preview import post_preview_cbq
@@ -25,7 +26,7 @@ from handlers.private.start.callbacks.contest import start_contest
 from handlers.private.start.deeplink import command_start_deeplink
 from keyboards.channels import ChannelsCallback
 from keyboards.contest import ContestCallback, JoinButtonCallback
-from keyboards.results import ResultsCallback, ResultsChangePageCallback
+from keyboards.results import ResultsCallback, ResultsChangePageCallback, ResultsDeleteContestCallback
 from keyboards.start import StartCallback
 from middlewares.init_contexts import InitMiddleware
 from states.contest import ContestStatus
@@ -62,5 +63,6 @@ def create_private_router(session_pool, bot_pickle, scheduler: AsyncIOScheduler)
     private_router.callback_query.register(post_preview_cbq, JoinButtonCallback.filter())
     private_router.callback_query.register(contest_close_cbq, ResultsCallback.filter())
     private_router.callback_query.register(contest_results_change_page_cbq, ResultsChangePageCallback.filter())
+    private_router.callback_query.register(contest_results_delete_contest_cbq, ResultsDeleteContestCallback.filter())
 
     return private_router

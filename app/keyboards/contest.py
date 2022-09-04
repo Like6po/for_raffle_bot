@@ -53,7 +53,7 @@ def contest_action_kb(channel_id: int):
     kb_obj = InlineKeyboardBuilder()
     kb_obj.row(InlineKeyboardButton(text='➕ Создать Конкурс',
                                     callback_data=ContestCallback(action="create", channel_id=channel_id).pack()))
-    kb_obj.row(InlineKeyboardButton(text='📝 Подвести Итоги',
+    kb_obj.row(InlineKeyboardButton(text='✏ Управление Конкурсами',
                                     callback_data=ContestCallback(action="results", channel_id=channel_id).pack()))
     kb_obj.row(InlineKeyboardButton(text='🗄 Выбор Каналов',
                                     callback_data=StartCallback(action="contest").pack()))

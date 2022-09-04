@@ -12,7 +12,7 @@ async def contest_channel_choice(cbq: CallbackQuery,
                                  contest_db: ContestContext):
     await cbq.message.edit_text(
         make_text_of_created_contests(chnl := await channel_db.get(channel_id=callback_data.channel_id),
-                                      await contest_db.get_all(callback_data.channel_id)),
+                                      await contest_db.get_all(channel_db_id=callback_data.channel_id)),
         reply_markup=contest_action_kb(chnl.id)
     )
     await cbq.answer()
