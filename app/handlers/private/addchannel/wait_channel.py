@@ -10,7 +10,7 @@ from database.contexts.user_channel import UserChannelContext
 from database.models.channel import Channel
 from database.models.user import User
 from keyboards.channels import channels_kb
-from misc.links import chat_link
+from misc.utils.links import chat_link
 
 
 async def wait_channel(message: Message,

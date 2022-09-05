@@ -6,8 +6,8 @@ from database.contexts.channel import ChannelContext
 from database.contexts.contest import ContestContext
 from keyboards.results import ResultsCallback
 from keyboards.results import results_kb
-from misc.contest import choose_the_winners
-from misc.texts import make_text_of_created_contests_with_pagination
+from misc.utils.contest import choose_the_winners
+from misc.utils.texts import make_text_of_created_contests_with_pagination
 
 
 async def contest_close_cbq(cbq: CallbackQuery,

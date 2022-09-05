@@ -11,8 +11,8 @@ from database.contexts import ContestContext, ContestMemberContext, MemberContex
 from database.models import Member, ContestMember, Contest
 from keyboards.results import post_button_with_results
 from misc.config import config
-from misc.links import user_link
-from misc.telegraph_api import create_page_with_winners
+from misc.utils.links import user_link
+from misc.utils.telegraph_api import create_page_with_winners
 
 
 async def get_content(message: Message,

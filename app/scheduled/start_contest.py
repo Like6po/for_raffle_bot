@@ -9,7 +9,7 @@ from database.contexts import ContestContext
 from database.models import Contest
 from keyboards.contest import post_button_kb
 from misc.config import config
-from misc.contest import send_post
+from misc.utils.contest import send_post
 
 
 async def start_contest(bot, channel_data, contest_data: Contest, state_data: dict):

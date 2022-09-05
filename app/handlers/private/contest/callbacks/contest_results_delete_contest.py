@@ -5,7 +5,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from database.contexts import ContestContext, ChannelContext, ContestMemberContext
 from keyboards.results import results_kb, ResultsDeleteContestCallback
-from misc.texts import make_text_of_created_contests_with_pagination
+from misc.utils.texts import make_text_of_created_contests_with_pagination
 
 
 async def contest_results_delete_contest_cbq(cbq: CallbackQuery,

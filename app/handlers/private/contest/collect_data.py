@@ -7,7 +7,7 @@ from aiogram.utils.markdown import hbold, hcode
 
 from database.contexts import ChannelContext
 from keyboards.contest import contest_kb, post_button_kb
-from misc.contest import get_content, send_post
+from misc.utils.contest import get_content, send_post
 
 
 async def collect_data(message: Message,

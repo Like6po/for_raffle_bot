@@ -3,7 +3,7 @@ from aiogram.dispatcher.filters import CommandObject
 from aiogram.types import Message
 
 from database.contexts import ContestContext, ContestMemberContext, MemberContext
-from misc.contest import choose_the_winners
+from misc.utils.contest import choose_the_winners
 
 
 async def command_start_deeplink(message: Message,

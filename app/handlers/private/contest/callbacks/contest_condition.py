@@ -10,7 +10,7 @@ from apscheduler.triggers.interval import IntervalTrigger
 from database.contexts import ChannelContext, ContestContext
 from keyboards.contest import contest_kb, post_button_kb, ContestCallback
 from misc.config import config
-from misc.contest import send_post
+from misc.utils.contest import send_post
 from scheduled.close_contest import close_contest
 from scheduled.start_contest import start_contest
 from states.contest import ContestStatus

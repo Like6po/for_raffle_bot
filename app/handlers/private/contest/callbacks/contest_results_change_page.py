@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 
 from database.contexts import ContestContext, ChannelContext
 from keyboards.results import results_kb, ResultsChangePageCallback
-from misc.texts import make_text_of_created_contests_with_pagination
+from misc.utils.texts import make_text_of_created_contests_with_pagination
 
 
 async def contest_results_change_page_cbq(cbq: CallbackQuery,

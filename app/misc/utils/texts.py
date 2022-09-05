@@ -5,7 +5,7 @@ from typing import List
 from aiogram.utils.markdown import hbold
 
 from database.models import Channel, Contest
-from misc.links import post_link
+from misc.utils.links import post_link
 
 
 def make_text_of_created_contests(channel: Channel,

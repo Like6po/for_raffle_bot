@@ -5,7 +5,7 @@ from aiogram.utils.deep_linking import create_start_link
 
 from database.contexts import MemberContext, ContestContext, ContestMemberContext, ChannelContext
 from keyboards.contest import JoinButtonCallback
-from misc.contest import is_channel_member
+from misc.utils.contest import is_channel_member
 
 
 async def contest_join(cbq: CallbackQuery,

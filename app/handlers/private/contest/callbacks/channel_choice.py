@@ -3,7 +3,7 @@ from aiogram.types import CallbackQuery
 from database.contexts.channel import ChannelContext
 from database.contexts.contest import ContestContext
 from keyboards.contest import contest_action_kb, ContestCallback
-from misc.texts import make_text_of_created_contests
+from misc.utils.texts import make_text_of_created_contests
 
 
 async def contest_channel_choice(cbq: CallbackQuery,

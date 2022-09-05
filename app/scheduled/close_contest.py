@@ -8,7 +8,7 @@ from sqlalchemy.orm import sessionmaker
 from database.contexts import ContestContext, ContestMemberContext, MemberContext
 from database.models import Contest, ContestMember, Member
 from misc.config import config
-from misc.contest import choose_the_winners
+from misc.utils.contest import choose_the_winners
 
 
 async def close_contest(bot, contest_data: Contest):

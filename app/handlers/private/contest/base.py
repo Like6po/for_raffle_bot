@@ -3,7 +3,7 @@ from aiogram.types import Message
 from database.contexts.user_channel import UserChannelContext
 from keyboards.base import back_kb
 from keyboards.contest import channels_choice_kb
-from misc.pages import array_to_pages
+from misc.utils.pages import array_to_pages
 
 
 async def command_contest(message: Message,

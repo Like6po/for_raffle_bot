@@ -68,6 +68,6 @@ def results_kb(contests: List[Contest],
 
 def post_button_with_results(link: str):
     kb_obj = InlineKeyboardBuilder()
-    kb_obj.row(InlineKeyboardButton(text='Список Победителей', url=link))
+    kb_obj.row(InlineKeyboardButton(text='Итоги Конкурса', url=link))
 
     return kb_obj.as_markup()
