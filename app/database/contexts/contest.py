@@ -32,6 +32,7 @@ class ContestContext(DatabaseContext):
                   end_count: int | None = None,
                   channel_tg_id: int | None = None,
                   sponsor_channels: set | None = None,
+                  is_notify_contest_end: bool = None,
                   **values: Any) -> Contest:
         try:
             if user and channel and text and winner_count and (end_at or end_count):
@@ -46,6 +47,7 @@ class ContestContext(DatabaseContext):
                                          end_count=end_count,
                                          winner_count=winner_count,
                                          sponsor_channels=sponsor_channels,
+                                         is_notify_contest_end=is_notify_contest_end,
                                          **values)
             raise DataError
 

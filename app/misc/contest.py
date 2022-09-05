@@ -5,10 +5,12 @@ from typing import List
 from aiogram import Bot
 from aiogram.exceptions import TelegramBadRequest
 from aiogram.types import Message, ChatMemberOwner, ChatMemberAdministrator, ChatMemberMember, ChatMember
+from aiogram.utils.markdown import hbold
 
 from database.contexts import ContestContext, ContestMemberContext, MemberContext, ChannelContext
 from database.models import Member, ContestMember, Contest
 from keyboards.results import post_button_with_results
+from misc.config import config
 from misc.links import user_link
 from misc.telegraph_api import create_page_with_winners
 
@@ -85,8 +87,7 @@ async def send_post(bot: Bot,
 
     if not state_data['attachment_hash']:
         msg = await bot.send_message(chat_id=chat_id, text=state_data['text'], parse_mode='HTML',
-                                     reply_markup=reply_markup,
-                                     disable_web_page_preview=state_data['is_attachment_preview'])
+                                     reply_markup=reply_markup)
         if is_contest_start:
             await contest_db.set_message_id(contest_data.id, msg.message_id)
         return
@@ -121,6 +122,16 @@ async def choose_the_winners(bot: Bot,
     if not contest_data:
         return
 
+    string = contest_data.start_at.astimezone(config.timezone).strftime('• Начался в %H:%M %d.%m.%Y МСК.\n') \
+        if contest_data.start_at \
+        else contest_data.created_at.astimezone(config.timezone).strftime('• Начался в %H:%M %d.%m.%Y МСК.\n')
+
+    string += datetime.now(config.timezone).strftime('• Закончился в %H:%M %d.%m.%Y МСК.\n')
+
+    string += f'• Количество участников: {len(contest_members_list)}\n'
+    string += f'• Количество победителей: {contest_data.winner_count}\n\n'
+    string += f'{hbold("Список Победителей:")}\n'
+
     if not len(contest_members_list) <= 0:
         winners_list: List[Member | ContestMember] = list()
 
@@ -134,19 +145,19 @@ async def choose_the_winners(bot: Bot,
         for index, winner in enumerate(winners_list):
             winners_list[index] = await member_db.get(db_id=winner.member_db_id)
 
-        string = f'Ура, победители!\n\nСписок: ' + \
-                 ', '.join(f'{i + 1}) {user_link(title=user.full_name, tg_id=user.tg_id)}'
-                           for i, user in enumerate(winners_list))
+        string += '\n'.join(f'{i + 1}) {user_link(title=user.full_name, tg_id=user.tg_id)}'
+                            for i, user in enumerate(winners_list))
     else:
-        string = 'Победители отсутствуют.'
+        string += 'Победители отсутствуют.'
+
+    await bot.edit_message_reply_markup(contest_data.channel_tg_id,
+                                        contest_data.message_id,
+                                        reply_markup=post_button_with_results(await create_page_with_winners(string)))
 
     await contest_db.finish(contest_db_id)
     await contest_members_db.finish_contest(contest_db_id)
 
-    link = await create_page_with_winners(string)
-
-    await bot.send_message(contest_data.channel_tg_id, string, reply_to_message_id=contest_data.message_id)
-
-    await bot.edit_message_reply_markup(contest_data.channel_tg_id,
-                                        contest_data.message_id,
-                                        reply_markup=post_button_with_results(link))
+    if contest_data.is_notify_contest_end:
+        await bot.send_message(contest_data.channel_tg_id,
+                               'Итоги конкурса уже доступны по кнопке под постом!',
+                               reply_to_message_id=contest_data.message_id)

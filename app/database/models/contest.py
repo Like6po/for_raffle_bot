@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, BigInteger, VARCHAR, DateTime, SmallInteger, ARRAY
+from sqlalchemy import Column, Integer, BigInteger, VARCHAR, DateTime, SmallInteger, ARRAY, BOOLEAN
 
 from database.models import DatabaseModel
 
@@ -20,3 +20,4 @@ class Contest(DatabaseModel):
     end_count = Column(Integer(), nullable=True)
     winner_count = Column(SmallInteger(), nullable=False)
     sponsor_channels = Column(ARRAY(BigInteger), nullable=True)
+    is_notify_contest_end = Column(BOOLEAN(), nullable=False)

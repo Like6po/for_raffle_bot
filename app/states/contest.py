@@ -6,7 +6,7 @@ class ContestStatus(StatesGroup):
     text = State()
     btn_title = State()
     attachment_hash = State()
-    is_attachment_preview = State()
+    is_notify_contest_end = State()
     winner_count = State()
     sponsor_channels = State()
     start_at = State()

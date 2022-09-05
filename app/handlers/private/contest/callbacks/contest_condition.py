@@ -54,21 +54,21 @@ async def contest_condition(cbq: CallbackQuery,
             state_data.update({
                 'attachment_hash': None
             })
-            await state.set_state(ContestStatus.is_attachment_preview)
-            await cbq.message.edit_text('🌐 Предпросмотр ссылок',
+            await state.set_state(ContestStatus.is_notify_contest_end)
+            await cbq.message.edit_text('Пост об окончании конкурса',
                                         reply_markup=contest_kb(callback_data.channel_id,
                                                                 last_state='attachment_hash',
                                                                 condition_buttons_title=('✅ Включить', '❌ Отключить')))
 
     elif callback_data.last_state == 'attachment_hash':
         state_data.update({
-            'is_attachment_preview': callback_data.condition
+            'is_notify_contest_end': callback_data.condition
         })
 
         await state.set_state(ContestStatus.winner_count)
         await cbq.message.edit_text('👥 Укажите количество победителей!',
                                     reply_markup=contest_kb(callback_data.channel_id,
-                                                            last_state='is_attachment_preview'))
+                                                            last_state='is_notify_contest_end'))
 
     elif callback_data.last_state == 'winner_count':
         if callback_data.condition:
@@ -131,7 +131,8 @@ async def contest_condition(cbq: CallbackQuery,
                                             start_at=state_data['start_at'],
                                             end_at=state_data['end_at'],
                                             end_count=state_data['end_count'],
-                                            sponsor_channels=state_data['sponsor_channels'])
+                                            sponsor_channels=state_data['sponsor_channels'],
+                                            is_notify_contest_end=state_data['is_notify_contest_end'])
 
         if state_data['start_at']:
             scheduler.add_job(start_contest, args=[bot_pickle, channel_data, contest_data, state_data],

@@ -62,7 +62,7 @@ async def collect_data(message: Message,
 
     elif last_state == 'attachment_hash':
         await state.set_state()
-        await message.answer('🌐 Предпросмотр ссылок',
+        await message.answer('Пост об окончании конкурса',
                              reply_markup=contest_kb(state_data['channel_id'],
                                                      last_state=last_state,
                                                      condition_buttons_title=('✅ Включить', '❌ Отключить')))
@@ -98,8 +98,8 @@ async def collect_data(message: Message,
         await message.answer(f"{hbold('👥 Кол-во победителей:')} {state_data['winner_count']}"
                              f"\n{hbold('▶ Публикация:')} {state_data['start_at']}"
                              f"\n{hbold('⏸ Окончание:')} {state_data['end_at']}"
-                             f"\n{hbold('🌐 Предпросмотр ссылок:')} {'✅' if state_data['is_attachment_preview'] else '❌'}"
-                             f"\n{hbold('🌐 Каналы-участники:')} {state_data['sponsor_channels'] if state_data['sponsor_channels'] else '❌'}"
+                             f"\n{hbold('Пост об окончании конкурса:')} {'✅' if state_data['is_notify_contest_end'] else '❌'}"
+                             f"\n{hbold('Каналы-участники:')} {state_data['sponsor_channels'] if state_data['sponsor_channels'] else '❌'}"
                              f"\n\n❗ Проверьте данные!",
                              reply_markup=contest_kb(state_data['channel_id'], last_state=last_state,
                                                      condition_buttons_title=['✔ Готово!']))

@@ -25,8 +25,8 @@ async def contest_return(cbq: CallbackQuery,
                                                             last_state='btn_title',
                                                             condition_buttons_title=(
                                                                 '✅ С вложением', '❌ Без вложения')))
-    elif callback_data.last_state == 'is_attachment_preview':
-        await cbq.message.edit_text('🌐 Предпросмотр ссылок',
+    elif callback_data.last_state == 'is_notify_contest_end':
+        await cbq.message.edit_text('Пост об окончании конкурса',
                                     reply_markup=contest_kb(callback_data.channel_id,
                                                             last_state='attachment_hash',
                                                             condition_buttons_title=('✅ Включить', '❌ Отключить')))
@@ -34,7 +34,7 @@ async def contest_return(cbq: CallbackQuery,
     elif callback_data.last_state == 'winner_count':
         await cbq.message.edit_text('👥 Укажите количество победителей!',
                                     reply_markup=contest_kb(callback_data.channel_id,
-                                                            last_state='is_attachment_preview'))
+                                                            last_state='is_notify_contest_end'))
 
     elif callback_data.last_state == 'sponsor_channels':
         await cbq.message.edit_text(f'Укажите юзернеймы каналов через пробел или перешлите сообщение из канала.'
