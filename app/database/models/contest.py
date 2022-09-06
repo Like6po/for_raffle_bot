@@ -1,14 +1,15 @@
 from datetime import datetime
 
-from sqlalchemy import Column, Integer, BigInteger, VARCHAR, DateTime, SmallInteger
+from sqlalchemy import Column, Integer, BigInteger, VARCHAR, DateTime, SmallInteger, ARRAY, BOOLEAN
 
-from database import DatabaseModel
+from database.models import DatabaseModel
 
 
 class Contest(DatabaseModel):
     id = Column(Integer(), autoincrement=True, primary_key=True)
     created_at = Column(DateTime(), nullable=False, default=datetime.now)
     channel_id = Column(BigInteger(), nullable=False)
+    channel_tg_id = Column(BigInteger(), nullable=False)
     user_id = Column(BigInteger(), nullable=False)
     message_id = Column(BigInteger(), nullable=True)
     text = Column(VARCHAR(4096), nullable=False)
@@ -18,3 +19,5 @@ class Contest(DatabaseModel):
     end_at = Column(DateTime(), nullable=True)
     end_count = Column(Integer(), nullable=True)
     winner_count = Column(SmallInteger(), nullable=False)
+    sponsor_channels = Column(ARRAY(BigInteger), nullable=True)
+    is_notify_contest_end = Column(BOOLEAN(), nullable=False)

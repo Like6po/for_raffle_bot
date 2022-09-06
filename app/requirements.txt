@@ -1,8 +1,13 @@
 environs==9.5.0
 asyncpg
-SQLAlchemy==1.4.39
+SQLAlchemy==1.4.40
 aiogram==3.0.0b3
-pytz==2022.1
+pytz==2022.2.1
 aioredis==2.0.1
 redis==4.3.4
 APScheduler==3.9.1
+aiograph==0.2
+pytest==5.2.0
+attrs==19.1.0
+# telegraph==2.1.0
+# httpx==0.23.0

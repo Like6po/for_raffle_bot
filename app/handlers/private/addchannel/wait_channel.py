@@ -1,6 +1,6 @@
 from aiogram import Bot
 from aiogram.dispatcher.fsm.context import FSMContext
-from aiogram.exceptions import TelegramForbiddenError
+from aiogram.exceptions import TelegramForbiddenError, TelegramBadRequest
 from aiogram.types import Message
 from aiogram.utils.markdown import hbold
 
@@ -10,7 +10,7 @@ from database.contexts.user_channel import UserChannelContext
 from database.models.channel import Channel
 from database.models.user import User
 from keyboards.channels import channels_kb
-from misc.links import chat_link
+from misc.utils.links import chat_link
 
 
 async def wait_channel(message: Message,
@@ -19,10 +19,16 @@ async def wait_channel(message: Message,
                        user_db: UserContext,
                        channel_db: ChannelContext,
                        user_channels_db: UserChannelContext):
+    channel: Channel | None = None
+
     if message.forward_from_chat:
-        channel: Channel = await channel_db.get(message.forward_from_chat)
+        channel = await channel_db.get(message.forward_from_chat)
     elif message.text.startswith('@'):
-        channel: Channel = await channel_db.get(await bot.get_chat(message.text))
+        try:
+            channel = await channel_db.get(await bot.get_chat(message.text))
+        except TelegramBadRequest as e:
+            if e.message.startswith('Bad Request: chat not found'):
+                return await message.reply('Такого канала не существует.')
     else:
         await message.answer("Ожидаю либо юзернейм канала, либо пересланное с канала сообщение! Попробуйте снова!")
         return

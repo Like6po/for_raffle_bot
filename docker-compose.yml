@@ -3,13 +3,24 @@ version: '3.3'
 services:
   postgres:
     image: postgres:14.3
-    container_name: database_raffle
+    container_name: raffle_database
+    restart: always
     expose:
       - 5432
     env_file:
       - ".env"
     ports:
-      - 5433:5432
+      - "5433:5432"
+
+  redis:
+    image: redis:7.0
+    container_name: raffle_redis
+    restart: always
+    command: redis-server --save 60 1 --loglevel warning
+    volumes:
+      - ./cache:/data
+    expose:
+      - 6379
 
   bot:
     build: ./app
@@ -23,3 +34,4 @@ services:
       - ./app:/app
     depends_on:
       - postgres
+      - redis

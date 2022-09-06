@@ -14,6 +14,10 @@ class ContestCallback(CallbackData, prefix="contest"):
     condition: bool = None
 
 
+class JoinButtonCallback(CallbackData, prefix="join_button"):
+    contest_db_id: int
+
+
 def channels_choice_kb(channels_page: dict, page_index: int = 0):
     kb_obj = InlineKeyboardBuilder()
     for channel in channels_page[page_index]:
@@ -37,21 +41,20 @@ def channels_choice_kb(channels_page: dict, page_index: int = 0):
     return kb_obj.as_markup()
 
 
-def post_button_kb(button_title: str):
+def post_button_kb(button_title: str, contest_db_id: int):
     kb_obj = InlineKeyboardBuilder()
     kb_obj.row(InlineKeyboardButton(text=button_title or 'Учавствовать',
-                                    callback_data=ContestCallback(action="join").pack()))
+                                    callback_data=JoinButtonCallback(contest_db_id=contest_db_id).pack()))
 
     return kb_obj.as_markup()
 
 
-def contest_action_kb(channel_id: int, contest_results_btn: bool = True):
+def contest_action_kb(channel_id: int):
     kb_obj = InlineKeyboardBuilder()
     kb_obj.row(InlineKeyboardButton(text='➕ Создать Конкурс',
                                     callback_data=ContestCallback(action="create", channel_id=channel_id).pack()))
-    if contest_results_btn:
-        kb_obj.row(InlineKeyboardButton(text='📝 Подвести Итоги',
-                                        callback_data=ContestCallback(action="results").pack()))
+    kb_obj.row(InlineKeyboardButton(text='✏ Управление Конкурсами',
+                                    callback_data=ContestCallback(action="results", channel_id=channel_id).pack()))
     kb_obj.row(InlineKeyboardButton(text='🗄 Выбор Каналов',
                                     callback_data=StartCallback(action="contest").pack()))
 

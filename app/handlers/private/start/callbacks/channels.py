@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 
 from database.contexts.user_channel import UserChannelContext
 from keyboards.channels import channels_kb
-from misc.links import chat_link
+from misc.utils.links import chat_link
 
 
 async def start_channels(cbq: CallbackQuery,

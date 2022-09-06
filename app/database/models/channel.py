@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, BigInteger, VARCHAR
 
-from database import DatabaseModel
+from database.models import DatabaseModel
 
 
 class Channel(DatabaseModel):

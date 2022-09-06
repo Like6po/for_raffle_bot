@@ -11,7 +11,6 @@ from database.models.user import User
 
 
 class UserContext(DatabaseContext):
-
     def __init__(
             self,
             session_or_pool: Union[sessionmaker, AsyncSession],

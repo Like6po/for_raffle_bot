@@ -1,9 +1,9 @@
 from aiogram.types import CallbackQuery
 
-from misc.pages import array_to_pages
 from database.contexts.user_channel import UserChannelContext
-from keyboards.contest import channels_choice_kb
 from keyboards.base import back_kb
+from keyboards.contest import channels_choice_kb
+from misc.utils.pages import array_to_pages
 
 
 async def start_contest(cbq: CallbackQuery,

@@ -22,5 +22,9 @@ def chat_link(chat: AiogramChat = None, username=None, tg_id=None, title=None):
 
 
 def post_link(chat_id: int = None, message_id: int = None, title: str = None):
-    return hlink(title,
-                 f"t.me/c/{((chat_id * -1) - 1000000000000) if chat_id < -1000000000000 else chat_id}/{message_id}")
+    string = f"t.me/c/{((chat_id * -1) - 1000000000000) if chat_id < -1000000000000 else chat_id}/{message_id}"
+    if not message_id:
+        return title or None
+    if not title:
+        return string
+    return hlink(title, string)

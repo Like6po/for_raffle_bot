@@ -2,7 +2,7 @@ from aiogram.types import CallbackQuery
 
 from database.contexts.user_channel import UserChannelContext
 from keyboards.contest import channels_choice_kb, ContestCallback
-from misc.pages import array_to_pages
+from misc.utils.pages import array_to_pages
 
 
 async def contest_channel_switch(cbq: CallbackQuery,
