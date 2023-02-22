@@ -15,7 +15,7 @@ async def command_start_deeplink(message: Message,
     try:
         deeplink_name, arg2 = command.args.split('_', maxsplit=1)
     except ValueError:
-        return await message.answer(text=f'[START DEEPLINK] Ошибка. Пожайлуста, не играйтесь с диплинком ;)')
+        return await message.answer(text=f'Ошибка. Пожайлуста, не играйтесь с диплинком ;)')
 
     if deeplink_name == 'join-contest':  # пример использования: handlers/channel/contest/callbacks/base.py, 23 line
         contest_db_id = int(arg2)
@@ -24,7 +24,7 @@ async def command_start_deeplink(message: Message,
         contest_data = await contest_db.get_by_db_id(contest_db_id)
 
         await contest_members_db.add(contest_db_id, member_data.id)
-        await message.reply('Вы успешно зарегались.')
+        await message.reply('Вы успешно зарегистрировались.')
 
         if contest_data.end_count:
             if contest_data.end_count <= await contest_members_db.count(contest_db_id):
@@ -32,4 +32,4 @@ async def command_start_deeplink(message: Message,
 
     # elif deeplink_name == 'еще какие-нибудь диплинки':
     else:
-        return await message.answer(text=f'[START DEEPLINK] Ошибка. Такого диплинка не существует.')
+        return await message.answer(text=f'Ошибка. Такого диплинка не существует.')

@@ -70,3 +70,4 @@ docs/_build/
 /.idea/vcs.xml
 
 /cache
+/postgres-data/

@@ -47,3 +47,7 @@ def make_text_of_created_contests_with_pagination(channel: Channel,
            f"{hbold(f'Страница: {page}/{ceil(contests_count / 10)}')}\n\n" \
            + '\n'.join(channel_contest) + "\n\nЧтобы завершить конкурс, нажмите на клавиатуре под " \
                                           "этим сообщением соответствующую кнопку."
+
+
+def make_start_text(fullname: str, alert: str = ''):
+    return f'{alert}\n\nПривет, {fullname}!'

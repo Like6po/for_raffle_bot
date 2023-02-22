@@ -159,5 +159,11 @@ async def choose_the_winners(bot: Bot,
 
     if contest_data.is_notify_contest_end:
         await bot.send_message(contest_data.channel_tg_id,
-                               'Итоги конкурса уже доступны по кнопке под постом!',
+                               '🎉 Конкурс был завершен!',
                                reply_to_message_id=contest_data.message_id)
+
+
+# async def add_channel_if_not_exists(channel: Chat, channel_db: ChannelContext):
+#     if await channel_db.exists(Channel.tg_id == channel.id):
+#         return
+#     await channel_db.add(title=channel.title, tg_id=channel.id, username=channel.username)

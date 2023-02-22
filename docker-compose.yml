@@ -1,10 +1,10 @@
-version: '3.3'
-
 services:
   postgres:
-    image: postgres:14.3
+    image: postgres:15.1
     container_name: raffle_database
     restart: always
+    volumes:
+      - ./postgres-data:/var/lib/postgresql/data
     expose:
       - 5432
     env_file:

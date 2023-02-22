@@ -9,8 +9,10 @@ from apscheduler.triggers.interval import IntervalTrigger
 
 from database.contexts import ChannelContext, ContestContext
 from keyboards.contest import contest_kb, post_button_kb, ContestCallback
+from keyboards.start import start_kb
 from misc.config import config
 from misc.utils.contest import send_post
+from misc.utils.texts import make_start_text
 from scheduled.close_contest import close_contest
 from scheduled.start_contest import start_contest
 from states.contest import ContestStatus
@@ -55,7 +57,7 @@ async def contest_condition(cbq: CallbackQuery,
                 'attachment_hash': None
             })
             await state.set_state(ContestStatus.is_notify_contest_end)
-            await cbq.message.edit_text('Пост об окончании конкурса',
+            await cbq.message.edit_text('🔔 Пост об окончании конкурса?',
                                         reply_markup=contest_kb(callback_data.channel_id,
                                                                 last_state='attachment_hash',
                                                                 condition_buttons_title=('✅ Включить', '❌ Отключить')))
@@ -82,8 +84,8 @@ async def contest_condition(cbq: CallbackQuery,
         else:
             await state.set_state(ContestStatus.sponsor_channels)
             await cbq.message.edit_text(
-                f'Укажите юзернеймы каналов через пробел или перешлите сообщение из канала.'
-                f'ex: @danya @dane4ka @danil',
+                f'📝 Укажите юзернеймы каналов через пробел или перешлите сообщение из канала.\n'
+                f'Пример: @danya @dane4ka @danil',
                 reply_markup=contest_kb(callback_data.channel_id, last_state='sponsor_channels'))
 
     elif callback_data.last_state == 'sponsor_channels':
@@ -115,10 +117,22 @@ async def contest_condition(cbq: CallbackQuery,
                 reply_markup=contest_kb(callback_data.channel_id, last_state='end_at'))
 
     elif callback_data.last_state in ['end_count', 'end_at']:
-        await state.clear()
-
         state_data['start_at'] = datetime.fromisoformat(state_data['start_at']) if state_data['start_at'] else None
         state_data['end_at'] = datetime.fromisoformat(state_data['end_at']) if state_data['end_at'] else None
+
+        if state_data['end_count'] and (state_data['winner_count'] > state_data['end_count']):
+            return await cbq.answer('⛔ Число победителей превышает число участников!',
+                                    show_alert=True)
+
+        elif state_data['start_at'] and (state_data['start_at'] - datetime.now()).total_seconds() <= 0:
+            return await cbq.answer('⛔ Неверная дата начала!',
+                                    show_alert=True)
+
+        elif state_data['end_at'] and (state_data['end_at'] - datetime.now()).total_seconds() <= 0:
+            return await cbq.answer('⛔ Неверная дата окончания!',
+                                    show_alert=True)
+
+        await state.clear()
 
         channel_data = await channel_db.get(channel_id=state_data['channel_id'])
         contest_data = await contest_db.new(user=cbq.from_user,
@@ -131,7 +145,7 @@ async def contest_condition(cbq: CallbackQuery,
                                             start_at=state_data['start_at'],
                                             end_at=state_data['end_at'],
                                             end_count=state_data['end_count'],
-                                            sponsor_channels=state_data['sponsor_channels'],
+                                            sponsor_channels=set(state_data['sponsor_channels']),
                                             is_notify_contest_end=state_data['is_notify_contest_end'])
 
         if state_data['start_at']:
@@ -147,7 +161,6 @@ async def contest_condition(cbq: CallbackQuery,
                                                           end_date=state_data['start_at'] + timedelta(seconds=secs + 5),
                                                           timezone=config.timezone),
                                   max_instances=1, id=f'close_contest_{contest_data.id}', misfire_grace_time=3)
-            return await cbq.message.edit_text('todo: succesfully added job')
 
         elif state_data['end_at']:
             scheduler.add_job(close_contest, args=[bot_pickle, contest_data],
@@ -159,6 +172,8 @@ async def contest_condition(cbq: CallbackQuery,
         await send_post(bot, channel_data.tg_id, state_data, post_button_kb(state_data['btn_title'], contest_data.id),
                         True, contest_db, contest_data)
 
-        return await cbq.message.edit_text('todo: finish text + keyboard')
+        return await cbq.message.edit_text(make_start_text(cbq.from_user.full_name,
+                                                           '🥳 Конкурс был успешно создан!'),
+                                           reply_markup=start_kb())
 
     await state.update_data(state_data)

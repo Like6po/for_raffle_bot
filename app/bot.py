@@ -4,9 +4,9 @@ import pickle
 
 from aiogram import Bot, Dispatcher
 from aiogram.dispatcher.fsm.storage.redis import RedisStorage
-from aioredis import Redis
 from apscheduler.jobstores.redis import RedisJobStore
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
+from redis.asyncio import Redis
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker
 

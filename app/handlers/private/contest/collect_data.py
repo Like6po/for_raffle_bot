@@ -31,8 +31,10 @@ async def collect_data(message: Message,
                 ids_set = state_data.get(last_state, set())
                 if ids_set is None:  # если использовать "назад"
                     ids_set = set()
+                elif isinstance(ids_set, list):
+                    ids_set = set(ids_set)
                 ids_set.update(content)
-                state_data.update({last_state: ids_set})
+                state_data.update({last_state: list(ids_set)})
             else:  # если сразу написать Закончить
                 if not state_data.get(last_state, None):
                     state_data.update({last_state: None})
@@ -62,7 +64,7 @@ async def collect_data(message: Message,
 
     elif last_state == 'attachment_hash':
         await state.set_state()
-        await message.answer('Пост об окончании конкурса',
+        await message.answer('🔔 Пост об окончании конкурса?',
                              reply_markup=contest_kb(state_data['channel_id'],
                                                      last_state=last_state,
                                                      condition_buttons_title=('✅ Включить', '❌ Отключить')))
@@ -70,14 +72,14 @@ async def collect_data(message: Message,
     elif last_state == 'winner_count':
         await state.set_state()
         await message.answer(
-            'Каналы-участники?',
+            '📊 Добавить обязательные каналы для подписки (сторонние каналы)?',
             reply_markup=contest_kb(state_data['channel_id'],
                                     last_state=last_state,
-                                    condition_buttons_title=('Без', 'Указать')))
+                                    condition_buttons_title=('🔜 Пропустить', '📝 Указать')))
 
     elif last_state == 'sponsor_channels':
         if not message.text.lower() == 'закончить':
-            return await message.reply(f'Чтобы закончить напишите {hcode("Закончить")}.')
+            return await message.reply(f'🔚 Закончили перечисление? Пропишите {hcode("Закончить")}.')
         await state.set_state()
         await message.answer(
             '📅 Когда опубликуем пост?',
@@ -92,14 +94,18 @@ async def collect_data(message: Message,
                                     condition_buttons_title=('👤 Учаcтники', '📆 Дата')))
 
     elif last_state in ['end_count', 'end_at']:
+        sponsors_titles = []
+        for sponsor in state_data['sponsor_channels']:
+            sponsor_data = await channel_db.get(tg_id=sponsor)
+            sponsors_titles.append(sponsor_data.title)
         await send_post(bot, message.from_user.id, state_data, post_button_kb(state_data['btn_title'], 0))  # 0 костыль
         state_data['start_at'] = datetime.fromisoformat(state_data['start_at']).strftime('в %H:%M %d.%m.%Y') if state_data['start_at'] else 'Сейчас'
         state_data['end_at'] = datetime.fromisoformat(state_data['end_at']).strftime('в %H:%M %d.%m.%Y') if state_data['end_at'] else f'После {state_data["end_count"]} участников'
         await message.answer(f"{hbold('👥 Кол-во победителей:')} {state_data['winner_count']}"
                              f"\n{hbold('▶ Публикация:')} {state_data['start_at']}"
                              f"\n{hbold('⏸ Окончание:')} {state_data['end_at']}"
-                             f"\n{hbold('Пост об окончании конкурса:')} {'✅' if state_data['is_notify_contest_end'] else '❌'}"
-                             f"\n{hbold('Каналы-участники:')} {state_data['sponsor_channels'] if state_data['sponsor_channels'] else '❌'}"
+                             f"\n{hbold('🔔 Пост об окончании конкурса:')} {'✅' if state_data['is_notify_contest_end'] else '❌'}"
+                             f"\n{hbold('📊 Каналы для подписки:')} {', '.join(sponsors_titles) or '❌'}"
                              f"\n\n❗ Проверьте данные!",
                              reply_markup=contest_kb(state_data['channel_id'], last_state=last_state,
                                                      condition_buttons_title=['✔ Готово!']))
