@@ -28,7 +28,7 @@ async def wait_channel(message: Message,
             channel = await channel_db.get(await bot.get_chat(message.text))
         except TelegramBadRequest as e:
             if e.message.startswith('Bad Request: chat not found'):
-                return await message.reply('Такого канала не существует.')
+                return await message.reply('Такого канала не существует, либо он не зарегистрирован!')
     else:
         await message.answer("Ожидаю либо юзернейм канала, либо пересланное с канала сообщение! Попробуйте снова!")
         return

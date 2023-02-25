@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from typing import Any, Union, Type, List, cast
+from typing import Any, Union, Type, List
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError, DataError
@@ -60,13 +60,8 @@ class ContestContext(DatabaseContext):
     async def set_message_id(self, contest_db_id: int, message_id: int):
         await super().update(Contest.id == contest_db_id, message_id=message_id)
 
-    async def get_all(self, *clauses, channel_db_id: int = None) -> List[Contest]:
-        statement = select(Contest).where(*clauses).order_by(Contest.id.asc())
-        async with self._transaction:
-            # noinspection PyTypeChecker
-            result: AsyncResult = await self._session.execute(statement)
-            scalars = result.scalars().unique().all()
-        return cast(List[Contest], scalars)
+    async def get_all_active(self, channel_db_id: int) -> List[Contest]:
+        return await super().get_all(Contest.channel_id == channel_db_id)
 
     async def get(self, channel_db_id: int,
                   limit=10,

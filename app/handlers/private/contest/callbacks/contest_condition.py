@@ -50,7 +50,7 @@ async def contest_condition(cbq: CallbackQuery,
         if callback_data.condition:
             await state.set_state(ContestStatus.attachment_hash)
             await cbq.message.edit_text(
-                'Отправьте мне вложение!\nПримечание: поддерживаются только документы и фотографии.',
+                'Отправьте мне вложение!\nПримечание: поддерживаются только документы, фотографии и видео.',
                 reply_markup=contest_kb(callback_data.channel_id, last_state='attachment_hash'))
         else:
             state_data.update({
@@ -145,7 +145,7 @@ async def contest_condition(cbq: CallbackQuery,
                                             start_at=state_data['start_at'],
                                             end_at=state_data['end_at'],
                                             end_count=state_data['end_count'],
-                                            sponsor_channels=set(state_data['sponsor_channels']),
+                                            sponsor_channels=set(state_data['sponsor_channels'] or []),
                                             is_notify_contest_end=state_data['is_notify_contest_end'])
 
         if state_data['start_at']:

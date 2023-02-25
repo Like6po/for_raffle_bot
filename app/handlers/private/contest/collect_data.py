@@ -7,7 +7,7 @@ from aiogram.utils.markdown import hbold, hcode
 
 from database.contexts import ChannelContext
 from keyboards.contest import contest_kb, post_button_kb
-from misc.utils.contest import get_content, send_post
+from misc.utils.contest import get_content, send_post, InvalidContentError
 
 
 async def collect_data(message: Message,
@@ -21,6 +21,9 @@ async def collect_data(message: Message,
         return await message.reply('⚠ Ой-ой! Что-то пошло не так! Пожалуйста, начните создание конкурса заново.')
 
     if content := await get_content(message, last_state, bot, channel_db):
+        if isinstance(content, InvalidContentError):
+            return await message.reply(content.reason)
+
         if last_state in ['end_count', 'end_at']:
             state_data.update({
                 'end_count' if last_state == 'end_at' else 'end_at': None
@@ -95,7 +98,7 @@ async def collect_data(message: Message,
 
     elif last_state in ['end_count', 'end_at']:
         sponsors_titles = []
-        for sponsor in state_data['sponsor_channels']:
+        for sponsor in state_data['sponsor_channels'] or set():
             sponsor_data = await channel_db.get(tg_id=sponsor)
             sponsors_titles.append(sponsor_data.title)
         await send_post(bot, message.from_user.id, state_data, post_button_kb(state_data['btn_title'], 0))  # 0 костыль

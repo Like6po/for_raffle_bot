@@ -1,5 +1,6 @@
 from aiogram import Bot
 from aiogram import html
+from aiogram.exceptions import TelegramBadRequest, TelegramForbiddenError
 from aiogram.types import CallbackQuery
 from aiogram.utils.deep_linking import create_start_link
 
@@ -23,18 +24,23 @@ async def contest_join(cbq: CallbackQuery,
                                 show_alert=True,
                                 cache_time=300)
 
-    if not is_channel_member(await bot.get_chat_member(contest_data.channel_tg_id, cbq.from_user.id)):
-        return await cbq.answer('Для начала подпишитесь на этот канал!', show_alert=True)
+    try:
+        if not is_channel_member(await bot.get_chat_member(contest_data.channel_tg_id, cbq.from_user.id)):
+            return await cbq.answer('Для начала подпишитесь на этот канал!', show_alert=True)
 
-    for channel_id in contest_data.sponsor_channels or set():
-        if not is_channel_member(await bot.get_chat_member(channel_id, cbq.from_user.id)):
-            return await cbq.answer(f'Вы не подписаны на '
-                                    f'{html.quote((await channel_db.get(tg_id=channel_id)).title)}!', show_alert=True)
+        for channel_id in contest_data.sponsor_channels or set():
+            if not is_channel_member(await bot.get_chat_member(channel_id, cbq.from_user.id)):
+                return await cbq.answer(f'Вы не подписаны на '
+                                        f'{html.quote((await channel_db.get(tg_id=channel_id)).title)}!', show_alert=True)
+    except (TelegramBadRequest, TelegramForbiddenError):
+        return await cbq.answer('Произошла непредвиденная ошибка. '
+                                'Пожалуйста, обратитесь к администратору канала.',
+                                show_alert=True)
 
     if not await contest_members_db.exists(callback_data.contest_db_id, member_data.id):
         return await cbq.answer(url=await create_start_link(bot=bot,
                                                             payload=f"join-contest_{callback_data.contest_db_id}",
                                                             encode=True))
     else:
-        await contest_members_db.delete(callback_data.contest_db_id, member_data.id)
-        return await cbq.answer('Вы успешно самоудалились из конкурса, молодцы.', show_alert=True)
+        # await contest_members_db.delete(callback_data.contest_db_id, member_data.id)
+        return await cbq.answer('✅ Вы уже участвуете!', show_alert=True)

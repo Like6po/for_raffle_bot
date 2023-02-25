@@ -15,6 +15,15 @@ from misc.utils.links import user_link
 from misc.utils.telegraph_api import create_page_with_winners
 
 
+class InvalidContentError(Exception):
+    def __init__(self, reason: str):
+        self.reason = reason
+        super().__init__()
+
+    def __str__(self):
+        return self.reason
+
+
 async def get_content(message: Message,
                       last_state: str,
                       bot: Bot = None,
@@ -30,7 +39,9 @@ async def get_content(message: Message,
             return f"{message.photo[-1].file_id}:photo"
         if message.document:
             return f"{message.document.file_id}:document"
-        return None
+        if message.video:
+            return f"{message.video.file_id}:video"
+        return InvalidContentError('Принимается фото, видео, либо документ!')
 
     elif last_state == 'sponsor_channels':
         if message.text.lower() == 'закончить':
@@ -51,15 +62,16 @@ async def get_content(message: Message,
 
         for channel_username in channels_list:
             if not channel_username.startswith('@'):
-                return
+                return InvalidContentError('Пожалуйста, пришлите либо юзернейм канала, '
+                                           'либо пересланное с канала сообщение!')
             try:
                 channel = await channel_db.get(await bot.get_chat(channel_username))
                 if not channel:
-                    return
+                    return InvalidContentError('Такого канала нет в базе данных!')
                 channel_ids_set.add(channel.tg_id)
             except TelegramBadRequest as e:
                 if e.message.startswith('Bad Request: chat not found'):
-                    return
+                    return InvalidContentError('Такого канала не существует, либо он не зарегистрирован!')
 
         return channel_ids_set
 
@@ -67,7 +79,7 @@ async def get_content(message: Message,
         try:
             return int(message.text)
         except:
-            return None
+            return InvalidContentError('Пожалуйста, отправьте число!')
 
     elif last_state in ['start_at', 'end_at']:
         try:
@@ -96,12 +108,17 @@ async def send_post(bot: Bot,
     if file_type == 'photo':
         msg = await bot.send_photo(chat_id=chat_id, photo=state_data['attachment_hash'].split(':')[0],
                                    caption=state_data['text'],
-                                   parse_mode='HTML', reply_markup=reply_markup)
+                                   reply_markup=reply_markup)
 
     elif file_type == 'document':
         msg = await bot.send_document(chat_id=chat_id, document=state_data['attachment_hash'].split(':')[0],
                                       caption=state_data['text'],
-                                      parse_mode='HTML', reply_markup=reply_markup)
+                                      reply_markup=reply_markup)
+
+    elif file_type == 'video':
+        msg = await bot.send_video(chat_id=chat_id, video=state_data['attachment_hash'].split(':')[0],
+                                   caption=state_data['text'],
+                                   reply_markup=reply_markup)
 
     if is_contest_start:
         await contest_db.set_message_id(contest_data.id, msg.message_id)
@@ -135,11 +152,13 @@ async def choose_the_winners(bot: Bot,
     if not len(contest_members_list) <= 0:
         winners_list: List[Member | ContestMember] = list()
 
+        members_count = len(contest_members_list)
         # щас winners_list это список ContestMember
-        for _ in range(0, contest_data.winner_count):
-            winner = choice(contest_members_list)
-            winners_list.append(winner)
-            contest_members_list.remove(winner)
+        for index in range(0, contest_data.winner_count):
+            if index <= members_count - 1:  # если кол-во участников < кол-во победителей
+                winner = choice(contest_members_list)
+                winners_list.append(winner)
+                contest_members_list.remove(winner)
 
         # а тут превращается в список Member
         for index, winner in enumerate(winners_list):
