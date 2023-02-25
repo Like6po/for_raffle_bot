@@ -11,6 +11,8 @@ def channels_kb():
     kb_obj = InlineKeyboardBuilder()
     kb_obj.row(InlineKeyboardButton(text='🔗 Привязать',
                                     callback_data=ChannelsCallback(action="add").pack()))
+    kb_obj.row(InlineKeyboardButton(text='🆙 Обновить данные',
+                                    callback_data=ChannelsCallback(action="update").pack()))
     kb_obj.row(InlineKeyboardButton(text='⏪ Назад',
                                     callback_data=ChannelsCallback(action="back").pack()))
     return kb_obj.as_markup()

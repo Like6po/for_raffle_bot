@@ -29,7 +29,7 @@ async def contest_condition(cbq: CallbackQuery,
     state_data = await state.get_data()
 
     if not state_data.get('channel_id', None):
-        return await cbq.message.reply('Ой-ой! channel_id был утерян!\nplaceholder: /start ')
+        return await cbq.message.reply('⚠ Ой-ой! Что-то пошло не так! Пожалуйста, начните создание конкурса заново.')
 
     if callback_data.last_state == 'text':
         if callback_data.condition:

@@ -18,7 +18,7 @@ async def collect_data(message: Message,
     last_state = (await state.get_state()).split(':')[-1]
 
     if not state_data.get('channel_id', None):
-        return await message.reply('Ой-ой! channel_id был утерян!\nplaceholder: /start ')
+        return await message.reply('⚠ Ой-ой! Что-то пошло не так! Пожалуйста, начните создание конкурса заново.')
 
     if content := await get_content(message, last_state, bot, channel_db):
         if last_state in ['end_count', 'end_at']:

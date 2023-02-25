@@ -67,3 +67,6 @@ class ChannelContext(DatabaseContext):
         if data := await self.get(chat=target_chat):
             return data
         return await self.new(chat=target_chat)
+
+    async def update(self, tg_id: int, username: str, title: str):
+        return await super().update(Channel.tg_id == tg_id, username=username, title=title)
