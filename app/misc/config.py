@@ -27,6 +27,8 @@ class DbConfig:
 @dataclass
 class TgBot:
     token: str
+    report_chat_id: int
+    is_report_handler_error: bool
 
 
 @dataclass
@@ -56,6 +58,8 @@ def load_config(path: str = None):
     return Config(
         tg_bot=TgBot(
             token=env.str("BOT_TOKEN"),
+            report_chat_id=env.int("REPORT_CHAT_ID"),
+            is_report_handler_error=env.bool("IS_REPORT_HANDLER_ERROR"),
         ),
         db=DbConfig(
             host=env.str('POSTGRES_HOST'),

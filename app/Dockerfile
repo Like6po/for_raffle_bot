@@ -5,6 +5,7 @@ WORKDIR /app
 # установка переменных окржуений
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
+ENV PYTHONNODEBUGRANGES 1
 # установка зависимостей пайтона
 RUN pip install --upgrade pip
 COPY ./requirements.txt .
