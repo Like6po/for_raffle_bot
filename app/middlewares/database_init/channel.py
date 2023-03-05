@@ -18,7 +18,6 @@ class OnChannelMyChatMemberDBInit(DatabaseInitMiddleware):
         super().create_contexts(data, session)
 
         try:
-            print(f'{self.__class__} ok')
             await handler(my_chat_member, data)
         finally:
             await super().close_session(data)

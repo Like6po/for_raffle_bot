@@ -19,9 +19,10 @@ async def contest_close_cbq(cbq: CallbackQuery,
                             member_db: MemberContext):
     await choose_the_winners(bot, contest_db, contest_members_db, member_db, callback_data.contest_db_id)
 
-    await cbq.message.edit_text(make_text_of_created_contests_with_pagination(
+    await cbq.message.edit_text(await make_text_of_created_contests_with_pagination(
             await channel_db.get(channel_id=callback_data.channel_db_id),
             contest_list := await contest_db.get(callback_data.channel_db_id, offset=callback_data.page * 10),
+            contest_members_db,
             count := await contest_db.count(callback_data.channel_db_id),
             page=callback_data.page + 1),
         reply_markup=results_kb(contest_list, count, callback_data.channel_db_id, callback_data.page + 1)

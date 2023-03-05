@@ -28,9 +28,10 @@ async def contest_results_delete_contest_cbq(cbq: CallbackQuery,
     else:
         await cbq.answer('Конкурс не найден.', show_alert=True)
 
-    await cbq.message.edit_text(make_text_of_created_contests_with_pagination(
+    await cbq.message.edit_text(await make_text_of_created_contests_with_pagination(
         await channel_db.get(channel_id=callback_data.channel_db_id),
         contest_list := await contest_db.get(callback_data.channel_db_id, offset=callback_data.page * 10),
+        contest_members_db,
         count := await contest_db.count(callback_data.channel_db_id),
         page=callback_data.page + 1),
         reply_markup=results_kb(contest_list, count, callback_data.channel_db_id, callback_data.page)
