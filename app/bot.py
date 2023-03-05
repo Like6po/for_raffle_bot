@@ -59,13 +59,11 @@ async def main():
 
     # start
     try:
-        await bot.get_updates(-1)
+        await bot.get_updates(offset=-1, limit=1)
         await dp.start_polling(bot,
                                allowed_updates=["message",
-                                                "edited_message",
                                                 "callback_query",
-                                                "my_chat_member",
-                                                "chat_member"])
+                                                "my_chat_member"])
     finally:
         await storage.close()
 
