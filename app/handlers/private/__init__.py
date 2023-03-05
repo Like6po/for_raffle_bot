@@ -3,14 +3,14 @@ from aiogram.dispatcher.filters.command import CommandStart
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 from filters.chat_type import PrivateChatFilter
-from handlers.private.addchannel.base import command_addchannel
+# from handlers.private.addchannel.base import command_addchannel
 from handlers.private.addchannel.callbacks.channels_add import channels_add
 from handlers.private.addchannel.callbacks.channels_back import channels_back
 from handlers.private.addchannel.callbacks.channels_cancel import channels_cancel
 from handlers.private.addchannel.callbacks.channels_update import channels_update
 from handlers.private.addchannel.wait_channel import wait_channel
 from handlers.private.addchannel.wait_channel_to_update import wait_channel_to_update
-from handlers.private.contest.base import command_contest
+# from handlers.private.contest.base import command_contest
 from handlers.private.contest.callbacks.channel_choice import contest_channel_choice
 from handlers.private.contest.callbacks.channel_switch import contest_channel_switch
 from handlers.private.contest.callbacks.contest_close_contest import contest_close_cbq
@@ -30,7 +30,8 @@ from keyboards.channels import ChannelsCallback
 from keyboards.contest import ContestCallback, JoinButtonCallback
 from keyboards.results import ResultsCallback, ResultsChangePageCallback, ResultsDeleteContestCallback
 from keyboards.start import StartCallback
-from middlewares.init_contexts import InitMiddleware
+from middlewares.database_init.private import OnPrivateMsgDBInit, OnPrivateCbqDBInit
+from middlewares.database_upd.private import OnPrivateMsgDBUpd, OnPrivateCbqDBUpd
 from middlewares.throttling.private import ThrottlingPrivateCbqMiddleware, ThrottlingPrivateMsgMiddleware
 from states.contest import ContestStatus
 from states.user import UserStatus
@@ -44,10 +45,12 @@ def create_private_router(session_pool, bot_pickle, scheduler: AsyncIOScheduler)
     private_router.callback_query.bind_filter(bound_filter=PrivateChatFilter)
 
     # Миддлевари
-    private_router.message.middleware(InitMiddleware(session_pool, bot_pickle, scheduler))
+    private_router.message.middleware(OnPrivateMsgDBInit(session_pool, bot_pickle, scheduler))
+    private_router.message.middleware(OnPrivateMsgDBUpd())
     private_router.message.middleware.register(ThrottlingPrivateMsgMiddleware())
 
-    private_router.callback_query.middleware(InitMiddleware(session_pool, bot_pickle, scheduler))
+    private_router.callback_query.middleware(OnPrivateCbqDBInit(session_pool, bot_pickle, scheduler))
+    private_router.callback_query.middleware(OnPrivateCbqDBUpd())
     private_router.callback_query.middleware.register(ThrottlingPrivateCbqMiddleware())
 
     #
@@ -56,8 +59,8 @@ def create_private_router(session_pool, bot_pickle, scheduler: AsyncIOScheduler)
 
     private_router.message.register(command_start_deeplink, CommandStart(deep_link=True, deep_link_encoded=True))
     private_router.message.register(command_start, CommandStart())
-    private_router.message.register(command_addchannel, commands=["addchannel"], state=None)
-    private_router.message.register(command_contest, commands=["contest"])
+    # private_router.message.register(command_addchannel, commands=["addchannel"], state=None)
+    # private_router.message.register(command_contest, commands=["contest"])
     private_router.message.register(wait_channel, state=UserStatus.wait_channel_message)
     private_router.message.register(wait_channel_to_update, state=UserStatus.wait_channel_message_to_update)
     private_router.message.register(collect_data, state=ContestStatus)

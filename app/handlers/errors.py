@@ -1,4 +1,5 @@
 import asyncio
+import logging
 from traceback import format_exc
 
 from aiogram import Bot
@@ -56,3 +57,5 @@ async def errors(update: Update,
                                text[i:i+4095],
                                disable_notification=True)
         await asyncio.sleep(0.5)
+
+    logging.error(msg=f"Ошибка {type(exception)}", exc_info=exception)
