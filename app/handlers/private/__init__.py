@@ -31,6 +31,7 @@ from keyboards.contest import ContestCallback, JoinButtonCallback
 from keyboards.results import ResultsCallback, ResultsChangePageCallback, ResultsDeleteContestCallback
 from keyboards.start import StartCallback
 from middlewares.init_contexts import InitMiddleware
+from middlewares.throttling.private import ThrottlingPrivateCbqMiddleware, ThrottlingPrivateMsgMiddleware
 from states.contest import ContestStatus
 from states.user import UserStatus
 
@@ -38,11 +39,20 @@ from states.user import UserStatus
 def create_private_router(session_pool, bot_pickle, scheduler: AsyncIOScheduler) -> Router:
     private_router: Router = Router(name="private_router")
 
+     # Фильтры
     private_router.message.bind_filter(bound_filter=PrivateChatFilter)
     private_router.callback_query.bind_filter(bound_filter=PrivateChatFilter)
 
+    # Миддлевари
     private_router.message.middleware(InitMiddleware(session_pool, bot_pickle, scheduler))
+    private_router.message.middleware.register(ThrottlingPrivateMsgMiddleware())
+
     private_router.callback_query.middleware(InitMiddleware(session_pool, bot_pickle, scheduler))
+    private_router.callback_query.middleware.register(ThrottlingPrivateCbqMiddleware())
+
+    #
+    # --  Хендлеры
+    #
 
     private_router.message.register(command_start_deeplink, CommandStart(deep_link=True, deep_link_encoded=True))
     private_router.message.register(command_start, CommandStart())
